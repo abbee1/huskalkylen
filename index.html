@@ -1,0 +1,1543 @@
+<title>Huskalkylen — vad kostar det att bo i hus?</title>
+
+<style>
+/* ─────────────────────────  Tokens  ───────────────────────── */
+:root {
+  color-scheme: light;
+  --ground:      #EEF1EF;
+  --surface:     #FAFBFA;
+  --surface-2:   #F3F6F4;
+  --ink:         #111917;
+  --ink-2:       #5A6663;
+  --ink-3:       #86918D;
+  --rule:        #DCE2DF;
+  --rule-strong: #C4CDC9;
+  --accent:      #9C4030;
+  --accent-soft: rgba(156, 64, 48, 0.10);
+  --accent-on:   #FFFFFF;
+  --focus:       #9C4030;
+  --spent:       #C9D2CE;
+
+  --s1: #1E6E9E;   /* boende  */
+  --s2: #B07D0E;   /* levnad  */
+  --s3: #1B7A50;   /* kvar    */
+  --seq: #1E6E9E;
+
+  --good:     #1B7A50;
+  --warn:     #C2660F;
+  --critical: #B4342A;
+
+  --grid: rgba(17, 25, 23, 0.055);
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --shadow: 0 1px 2px rgba(17,25,23,.04), 0 8px 24px -16px rgba(17,25,23,.18);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:      #0E1311;
+    --surface:     #171E1B;
+    --surface-2:   #1D2622;
+    --ink:         #E9EFEB;
+    --ink-2:       #9FADA8;
+    --ink-3:       #7B8984;
+    --rule:        #2A3531;
+    --rule-strong: #3A4642;
+    --accent:      #D4705B;
+    --accent-soft: rgba(212, 112, 91, 0.14);
+    --accent-on:   #14201C;
+    --focus:       #D4705B;
+    --spent:       #33403B;
+
+    --s1: #3E93C4;
+    --s2: #B4851E;
+    --s3: #27957A;
+    --seq: #3E93C4;
+
+    --good:     #27957A;
+    --warn:     #D08A2A;
+    --critical: #E27A6A;
+
+    --grid: rgba(233, 239, 235, 0.05);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:      #0E1311;
+  --surface:     #171E1B;
+  --surface-2:   #1D2622;
+  --ink:         #E9EFEB;
+  --ink-2:       #9FADA8;
+  --ink-3:       #7B8984;
+  --rule:        #2A3531;
+  --rule-strong: #3A4642;
+  --accent:      #D4705B;
+  --accent-soft: rgba(212, 112, 91, 0.14);
+  --accent-on:   #14201C;
+  --focus:       #D4705B;
+  --spent:       #33403B;
+  --s1: #3E93C4;
+  --s2: #B4851E;
+  --s3: #27957A;
+  --seq: #3E93C4;
+  --good:     #27957A;
+  --warn:     #D08A2A;
+  --critical: #E27A6A;
+  --grid: rgba(233, 239, 235, 0.05);
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+
+/* ─────────────────────────  Base  ───────────────────────── */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { margin: 0; font-weight: 640; letter-spacing: -0.015em; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 620;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ─────────────────────────  Shell  ───────────────────────── */
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px 72px; }
+
+.masthead {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+  padding: 34px 0 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.brand { display: flex; align-items: baseline; gap: 12px; }
+.brand-mark {
+  width: 11px; height: 22px; flex: none;
+  background: var(--accent);
+  clip-path: polygon(50% 0, 100% 38%, 100% 100%, 0 100%, 0 38%);
+  transform: translateY(2px);
+}
+.masthead h1 { font-size: clamp(21px, 3vw, 27px); }
+.masthead .sub { color: var(--ink-2); font-size: 13.5px; max-width: 48ch; margin-top: 5px; }
+
+.tools { display: flex; gap: 8px; align-items: center; }
+.btn {
+  background: var(--surface); border: 1px solid var(--rule-strong);
+  border-radius: 7px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.btn:hover { background: var(--surface-2); border-color: var(--ink-3); }
+
+.layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  gap: 28px; align-items: start; margin-top: 26px;
+}
+@media (max-width: 940px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* ─────────────────────────  Ledger (left)  ───────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.ledger { display: flex; flex-direction: column; gap: 16px; }
+
+/* husväljare */
+.houses { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; align-items: center; }
+.house-wrap {
+  display: inline-flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 999px;
+  transition: background .12s, border-color .12s;
+}
+.house-wrap:hover { background: var(--surface-2); border-color: var(--ink-3); }
+.house-wrap.is-active { background: var(--accent); border-color: var(--accent); }
+.house-wrap.is-active .house-tab,
+.house-wrap.is-active .house-drop { color: var(--accent-on); }
+.house-wrap.is-active .house-tab { font-weight: 600; }
+.house-tab {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: 0; padding: 5px 6px 5px 13px;
+  font-size: 13px; cursor: pointer; border-radius: 999px 0 0 999px;
+}
+.house-tab:last-child { padding-right: 13px; border-radius: 999px; }
+.house-tab .kv { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; opacity: .75; }
+.house-drop {
+  background: none; border: 0; padding: 5px 11px 5px 3px; cursor: pointer;
+  font-size: 14px; line-height: 1; opacity: .55; border-radius: 0 999px 999px 0;
+}
+.house-drop:hover { opacity: 1; }
+.house-add {
+  background: none; border: 1px dashed var(--rule-strong); border-radius: 999px;
+  padding: 5px 13px; font-size: 13px; cursor: pointer; color: var(--ink-2);
+}
+.house-add:hover { border-color: var(--accent); color: var(--accent); }
+
+.acts { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: -6px 0 14px; }
+
+.banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+  margin-top: 16px; padding: 11px 14px;
+  background: var(--accent-soft); border: 1px solid var(--accent);
+  border-radius: var(--radius); font-size: 13px; color: var(--ink-2);
+}
+.banner[hidden] { display: none; }
+.banner strong { color: var(--ink); font-weight: 620; }
+.banner .spacer { flex: 1; }
+
+/* jämförelse */
+.cmp-row { cursor: pointer; }
+.cmp-row:hover td { background: var(--surface-2); }
+.cmp-row.is-active td { font-weight: 620; }
+.cmp-row.is-active td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
+
+.sect > summary {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 15px 18px; cursor: pointer; list-style: none;
+  border-radius: var(--radius);
+}
+.sect > summary::-webkit-details-marker { display: none; }
+.sect[open] > summary { border-bottom: 1px solid var(--rule); border-radius: var(--radius) var(--radius) 0 0; }
+.sect > summary:hover { background: var(--surface-2); }
+.sect-caret { color: var(--ink-3); font-size: 11px; transition: transform .15s; flex: none; }
+.sect[open] .sect-caret { transform: rotate(90deg); }
+.sect-title { font-weight: 620; font-size: 15px; letter-spacing: -0.01em; }
+.sect-sum { margin-left: auto; font-size: 14px; color: var(--ink-2); }
+.sect-body { padding: 6px 18px 16px; }
+
+/* ledger rows */
+.row {
+  display: grid; grid-template-columns: minmax(0,1fr) 168px;
+  gap: 12px; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.row:last-child { border-bottom: 0; }
+.row-label { font-size: 14px; }
+.row-hint { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.row-hint button {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--accent); text-decoration: underline; text-underline-offset: 2px;
+  font-size: 12px;
+}
+.field { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.field input[type="number"], .field input[type="text"] {
+  width: 100%; min-width: 0; text-align: right;
+  font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px;
+  padding: 7px 9px; color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--rule-strong); border-radius: 6px;
+}
+.field input[type="text"] { font-family: var(--sans); text-align: left; }
+.field input:focus { outline: 2px solid var(--focus); outline-offset: -1px; border-color: transparent; }
+.field .unit { font-size: 12px; color: var(--ink-3); width: 42px; flex: none; }
+.row-total { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px; text-align: right; padding-right: 48px; color: var(--ink-2); }
+
+@media (max-width: 520px) {
+  .row { grid-template-columns: minmax(0,1fr) 128px; gap: 8px; }
+  .field .unit { width: 34px; font-size: 11px; }
+  .row-total { padding-right: 34px; }
+}
+.check { display: flex; gap: 9px; align-items: flex-start; padding: 10px 0; font-size: 13.5px; color: var(--ink-2); }
+.check input { margin-top: 3px; accent-color: var(--accent); flex: none; }
+
+.note {
+  margin-top: 12px; padding: 11px 13px;
+  background: var(--accent-soft); border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0; font-size: 12.5px; color: var(--ink-2);
+}
+.note strong { color: var(--ink); font-weight: 620; }
+
+/* ─────────────────────────  Result rail (right)  ───────────────────────── */
+.rail { position: sticky; top: 18px; display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 940px) { .rail { position: static; } }
+
+.hero {
+  padding: 20px 20px 18px;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 22px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 22px 100%,
+    var(--surface);
+}
+.hero-fig {
+  font-size: clamp(34px, 6vw, 44px); font-weight: 650;
+  letter-spacing: -0.03em; line-height: 1.05; margin: 4px 0 2px;
+}
+.hero-fig.is-good { color: var(--good); }
+.hero-fig.is-warn { color: var(--warn); }
+.hero-fig.is-bad  { color: var(--critical); }
+.hero-cap { font-size: 13px; color: var(--ink-2); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+  border: 1px solid currentColor; margin-top: 10px;
+}
+.pill.is-good { color: var(--good); }
+.pill.is-warn { color: var(--warn); }
+.pill.is-bad  { color: var(--critical); }
+
+.kpis { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
+.kpi { padding: 13px 16px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.kpi:nth-child(2n) { border-right: 0; }
+.kpi:nth-last-child(-n+2) { border-bottom: 0; }
+.kpi-val { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 600; margin-top: 3px; letter-spacing: -0.02em; }
+.kpi-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+
+.panel { padding: 16px 18px 18px; }
+.panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 3px; }
+.panel h3 { font-size: 14px; }
+.panel-desc { font-size: 12.5px; color: var(--ink-3); margin-bottom: 14px; }
+.linkbtn { background: none; border: 0; padding: 0; cursor: pointer; font-size: 12px; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+/* legend */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; }
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+.swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+
+/* fördelning mellan personerna */
+.seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 7px; overflow: hidden; }
+.seg button {
+  background: var(--surface); border: 0; border-right: 1px solid var(--rule-strong);
+  padding: 5px 10px; font-size: 12.5px; cursor: pointer; transition: background .12s;
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--surface-2); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-on); font-weight: 600; }
+
+.slider { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 12.5px; color: var(--ink-2); }
+.slider[hidden] { display: none; }
+.slider input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); }
+
+.person { padding: 13px 0; border-bottom: 1px solid var(--rule); }
+.person:last-child { border-bottom: 0; }
+.person-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.person-name { font-size: 13.5px; font-weight: 620; }
+.person-kvar { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 600; letter-spacing: -0.02em; }
+.person-kvar.is-good { color: var(--good); }
+.person-kvar.is-warn { color: var(--warn); }
+.person-kvar.is-bad  { color: var(--critical); }
+.pbar { display: flex; height: 10px; margin: 8px 0 5px; border-radius: 5px; overflow: hidden; background: var(--surface-2); }
+.pbar span { display: block; height: 100%; }
+.pbar .spent { background: var(--spent); }
+.pbar .left  { background: var(--s3); margin-left: 2px; border-radius: 0 5px 5px 0; }
+.pbar .over  { background: var(--critical); margin-left: 2px; }
+.person-meta { font-size: 12px; color: var(--ink-3); }
+.person-meta .num { font-size: 12px; }
+
+/* charts */
+.chart { width: 100%; display: block; overflow: visible; }
+.chart text { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.chart text.lbl { font-family: var(--sans); font-variant-numeric: normal; }
+.tblview { display: none; margin-top: 12px; }
+.tblview.on { display: block; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid var(--rule); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.scrollx { overflow-x: auto; }
+
+/* ─────────────────────────  Reference  ───────────────────────── */
+.ref { margin-top: 34px; }
+.ref-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); margin-bottom: 0; }
+.ref-head h2 { font-size: 18px; }
+.ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0; }
+.ref-col { padding: 16px 18px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.ref-col:last-child { border-right: 0; }
+.ref-col h3 { font-size: 13px; margin-bottom: 10px; }
+.ref-line { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--rule); font-size: 13px; align-items: baseline; }
+.ref-line:last-child { border-bottom: 0; }
+.ref-line span:last-child { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.ref-line em { display: block; font-style: normal; font-size: 11.5px; color: var(--ink-3); }
+
+.footnote { margin-top: 26px; font-size: 12.5px; color: var(--ink-3); max-width: 78ch; }
+.footnote strong { color: var(--ink-2); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print {
+  .tools, .sect-caret { display: none; }
+  .rail { position: static; }
+  body { background: #fff; }
+  .layout { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <h1>Huskalkylen</h1>
+      </div>
+      <p class="sub">Vad kostar det egentligen att bo i hus — och hur mycket blir kvar när allt är betalt? Ändra siffrorna, allt räknas om direkt.</p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="btn-theme" type="button">Mörkt/ljust</button>
+      <button class="btn" id="btn-reset" type="button">Börja om</button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <div class="layout">
+
+    <!-- ───────── Ledger ───────── -->
+    <div>
+      <div class="houses" id="houses" role="tablist" aria-label="Hus att jämföra"></div>
+      <div class="acts">
+        <button class="linkbtn" type="button" id="act-share">Dela kalkylen som länk</button>
+        <button class="linkbtn" type="button" id="act-share-hus">Dela huset</button>
+        <button class="linkbtn" type="button" id="act-save">Spara som fil</button>
+        <button class="linkbtn" type="button" id="act-open">Öppna fil</button>
+        <input type="file" id="file-in" accept="application/json,.json" hidden>
+      </div>
+      <div class="ledger" id="ledger"></div>
+    </div>
+
+    <!-- ───────── Result rail ───────── -->
+    <div class="rail">
+
+      <section class="card">
+        <div class="hero">
+          <div class="eyebrow">Kvar när allt är betalt</div>
+          <div class="hero-fig" id="hero">–</div>
+          <p class="hero-cap" id="hero-cap">per månad</p>
+          <span class="pill" id="hero-pill"></span>
+        </div>
+        <div class="kpis">
+          <div class="kpi">
+            <div class="eyebrow">Boendet kostar</div>
+            <div class="kpi-val" id="kpi-boende">–</div>
+            <div class="kpi-sub" id="kpi-boende-sub">per månad</div>
+          </div>
+          <div class="kpi">
+            <div class="eyebrow">Boendekvot</div>
+            <div class="kpi-val" id="kpi-kvot">–</div>
+            <div class="kpi-sub" id="kpi-kvot-sub">av nettoinkomsten</div>
+          </div>
+          <div class="kpi">
+            <div class="eyebrow">Kontant vid tillträde</div>
+            <div class="kpi-val" id="kpi-kontant">–</div>
+            <div class="kpi-sub">handpenning + avgifter</div>
+          </div>
+          <div class="kpi">
+            <div class="eyebrow">Mot ert boende idag</div>
+            <div class="kpi-val" id="kpi-delta">–</div>
+            <div class="kpi-sub" id="kpi-delta-sub">per månad</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="panel-head">
+          <h3>Kvar till var och en</h3>
+          <button class="linkbtn" data-toggle="tbl-person" type="button">Visa som tabell</button>
+        </div>
+        <p class="panel-desc">Gemensamma utgifter minus barnbidrag och övriga inkomster, delade mellan er.</p>
+        <div class="seg" id="split-mode" role="group" aria-label="Hur utgifterna delas">
+          <button type="button" data-mode="lika">Lika</button>
+          <button type="button" data-mode="inkomst">Efter inkomst</button>
+          <button type="button" data-mode="egen">Egen</button>
+        </div>
+        <div class="slider" id="split-slider" hidden>
+          <label for="split-range" id="split-range-label">Andel</label>
+          <input type="range" id="split-range" min="0" max="100" step="5">
+        </div>
+        <div id="persons"></div>
+        <div class="tblview" id="tbl-person"></div>
+      </section>
+
+      <section class="card panel">
+        <div class="panel-head">
+          <h3>Så fördelas nettoinkomsten</h3>
+          <button class="linkbtn" data-toggle="tbl-split" type="button">Visa som tabell</button>
+        </div>
+        <p class="panel-desc" id="split-desc">Varje krona som kommer in, uppdelad.</p>
+        <svg class="chart" id="chart-split" height="72" role="img" aria-labelledby="split-title"><title id="split-title">Fördelning av nettoinkomsten</title></svg>
+        <div class="legend" id="split-legend"></div>
+        <div class="tblview" id="tbl-split"></div>
+      </section>
+
+      <section class="card panel">
+        <div class="panel-head">
+          <h3>Största utgiftsposterna</h3>
+          <button class="linkbtn" data-toggle="tbl-top" type="button">Visa som tabell</button>
+        </div>
+        <p class="panel-desc">Alla poster, störst först. Kronor per månad.</p>
+        <svg class="chart" id="chart-top" role="img" aria-labelledby="top-title"><title id="top-title">Utgiftsposter per månad, störst först</title></svg>
+        <div class="tblview" id="tbl-top"></div>
+      </section>
+
+      <section class="card panel">
+        <div class="panel-head">
+          <h3>Om räntan ändras</h3>
+          <button class="linkbtn" data-toggle="tbl-rate" type="button">Visa som tabell</button>
+        </div>
+        <p class="panel-desc">Kvar per månad vid olika bolåneräntor. Banken räknar oftast med 7&nbsp;%.</p>
+        <svg class="chart" id="chart-rate" role="img" aria-labelledby="rate-title"><title id="rate-title">Kvar per månad vid räntor mellan 1 och 8 procent</title></svg>
+        <div class="tblview" id="tbl-rate"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ───────── Compare ───────── -->
+  <section class="ref" id="compare" hidden>
+    <div class="ref-head">
+      <h2>Husen sida vid sida</h2>
+      <span class="eyebrow">samma hushåll, samma ränta</span>
+    </div>
+    <div class="card" style="border-radius: 0 0 var(--radius) var(--radius); border-top: 0; padding: 18px;">
+      <p class="panel-desc">Kvar per månad när allt är betalt. Klicka på ett hus för att räkna vidare på det.</p>
+      <svg class="chart" id="chart-compare" role="img" aria-labelledby="cmp-title"><title id="cmp-title">Kvar per månad för varje hus</title></svg>
+      <div class="scrollx" id="cmp-table"></div>
+    </div>
+  </section>
+
+  <!-- ───────── Reference ───────── -->
+  <section class="ref">
+    <div class="ref-head">
+      <h2>Vad kostar grejerna?</h2>
+      <span class="eyebrow">riktvärden att utgå från</span>
+    </div>
+    <div class="card ref-grid" style="border-radius: 0 0 var(--radius) var(--radius); border-top: 0;" id="refgrid"></div>
+    <p class="footnote">
+      <strong>Siffrorna ovan är riktvärden, inte fakta om ert hus.</strong>
+      Spannen bygger på vanliga nivåer för en svensk villa och varierar kraftigt med storlek, skick, uppvärmningssätt och kommun.
+      Be alltid mäklaren om husets faktiska driftkostnader och taxeringsvärde, och begära ett lånelöfte innan ni räknar med en viss ränta.
+      Amorteringskraven har setts över de senaste åren — stäm av vad som gäller med er bank innan ni litar på amorteringsraden.
+      Kalkylen sparas bara i den här webbläsaren; ingenting skickas någonstans.
+    </p>
+  </section>
+
+</div>
+
+<script>
+/* ══════════════════════════ Model ══════════════════════════ */
+
+const kr = new Intl.NumberFormat('sv-SE', { maximumFractionDigits: 0 });
+const fmt  = v => kr.format(Math.round(v));
+const fmtK = v => (v < 0 ? '−' : '') + fmt(Math.abs(v)) + ' kr';
+
+/* Every input the kalkyl knows about.
+   ref: [low, high] typical monthly span, shown as a fill-in hint.       */
+const SPEC = [
+  { id: 'inkomst', title: 'Vad kommer in', unit: 'kr/mån', fields: [
+    { k: 'namn1',    label: 'Person 1 heter',    def: 'Person 1', text: true },
+    { k: 'lon1',     label: 'Nettolön, person 1', def: 32000, hint: 'Det som landar på kontot' },
+    { k: 'namn2',    label: 'Person 2 heter',    def: 'Person 2', text: true },
+    { k: 'lon2',     label: 'Nettolön, person 2', def: 28000 },
+    { k: 'barn',     label: 'Antal barn hemma',   def: 0, unit: 'st', step: 1, max: 8, noSum: true },
+    { k: 'ovrigt',   label: 'Övriga inkomster',   def: 0, hint: 'Bidrag, sidoinkomst, hyra från uthyrning' },
+  ]},
+
+  { id: 'kop', title: 'Köpet och lånet', unit: '', fields: [
+    { k: 'husnamn', hus: true, label: 'Vilket hus är det här?', def: 'Hus 1', text: true,
+      hint: 'Adress eller smeknamn — används när husen jämförs' },
+    { k: 'pris', hus: true,       label: 'Pris på huset',        def: 4000000, unit: 'kr', step: 50000, noSum: true },
+    { k: 'kontantPct', hus: true, label: 'Kontantinsats',        def: 15, unit: '%', step: 1, max: 100, noSum: true,
+      hint: 'Minst 15 % krävs normalt (bolånetaket)' },
+    { k: 'ranta',       label: 'Bolåneränta',          def: 3.5, unit: '%', step: 0.05, max: 15, noSum: true },
+    { k: 'bruttoAr',    label: 'Bruttoårsinkomst, hushållet', def: 960000, unit: 'kr', step: 10000, noSum: true,
+      hint: 'Före skatt, båda ihop — styr det skärpta amorteringskravet' },
+    { k: 'pantbrev', hus: true,   label: 'Befintliga pantbrev',  def: 0, unit: 'kr', step: 50000, noSum: true,
+      hint: 'Står i objektbeskrivningen. Nya pantbrev kostar 2 % i stämpelskatt' },
+    { k: 'besiktning', hus: true, label: 'Besiktning',           def: 8000, unit: 'kr', step: 1000, noSum: true, ref: [5000, 15000] },
+    { k: 'flytt', hus: true,      label: 'Flytt',                def: 10000, unit: 'kr', step: 1000, noSum: true, ref: [5000, 20000] },
+    { k: 'inflytt', hus: true,    label: 'Att göra i ordning vid inflytt', def: 50000, unit: 'kr', step: 10000, noSum: true,
+      hint: 'Färg, vitvaror, det man alltid glömmer' },
+  ], checks: [
+    { k: 'skarpt', label: 'Räkna med skärpt amorteringskrav (+1 %/år om lånet är mer än 4,5 gånger bruttoårsinkomsten)', def: true },
+  ], note: 'Amortering är inte en kostnad — pengarna flyttas från kontot till huset. Men de måste ändå finnas varje månad, så kalkylen räknar med dem i kassaflödet och visar dem separat.' },
+
+  { id: 'drift', title: 'Driftkostnader — huset', scope: 'hus', unit: 'kr/mån', fields: [
+    { k: 'el',        label: 'El',                def: 1800, ref: [1200, 3500], hint: 'Värmepump ≈ 1 200–2 500, direktverkande el ≈ 2 000–4 000' },
+    { k: 'varme',     label: 'Uppvärmning utöver el', def: 0, ref: [0, 2000], hint: 'Fjärrvärme, pellets eller olja om det inte ligger i elräkningen' },
+    { k: 'vatten',    label: 'Vatten och avlopp', def: 500, ref: [400, 800] },
+    { k: 'sopor',     label: 'Sophämtning',       def: 250, ref: [200, 400] },
+    { k: 'forsakring',label: 'Villaförsäkring',   def: 450, ref: [300, 700] },
+    { k: 'sotning',   label: 'Sotning',           def: 60, ref: [40, 100] },
+    { k: 'samfall',   label: 'Samfällighet eller vägförening', def: 150, ref: [0, 500] },
+    { k: 'bredband',  label: 'Bredband',          def: 450, ref: [300, 700],
+      hint: 'Följer huset, inte er — i en hyresrätt ligger det ofta i avgiften' },
+    { k: 'larm',      label: 'Hemlarm',           def: 0, ref: [300, 500], hint: 'Om ni tecknar larmtjänst' },
+    { k: 'service',   label: 'Serviceavtal',      def: 0, ref: [150, 300],
+      hint: 'Värmepump, ventilation — utöver underhållsbufferten nedan' },
+    { k: 'snorojning', label: 'Snöröjning och trädgård', def: 0, ref: [0, 600], hint: 'Om ni köper tjänsten i stället för att göra det själva' },
+    { k: 'slamAr',    label: 'Slamtömning',       def: 0, unit: 'kr/år', step: 500, noSum: true,
+      hint: 'Bara vid enskilt avlopp — ≈ 1 500–3 000 kr/år' },
+    { k: 'tomtrattAr', label: 'Tomträttsavgäld',  def: 0, unit: 'kr/år', step: 1000, noSum: true,
+      hint: 'Bara om tomten är arrenderad. Kan vara stort — fråga mäklaren' },
+    { k: 'favgiftAr', label: 'Fastighetsavgift',  def: 9500, unit: 'kr/år', step: 500, noSum: true,
+      hint: '0,75 % av taxeringsvärdet, men högst takbeloppet (~9 500 kr/år, indexeras)' },
+    { k: 'underhallPct', label: 'Underhåll och reparationer', def: 1.0, unit: '%', step: 0.1, max: 5, noSum: true,
+      hint: 'Tumregel: 1 % av husets värde per år, avsatt varje månad' },
+  ]},
+
+  { id: 'levnad', title: 'Levnadskostnader', unit: 'kr/mån', fields: [
+    { k: 'mat',      label: 'Mat och hushåll',      def: 8000, ref: [2800, 3500], refPer: 'person' },
+    { k: 'bil',      label: 'Bil — allt inräknat',  def: 4500, ref: [3500, 6000], hint: 'Bränsle, försäkring, skatt, service och värdeminskning' },
+    { k: 'resor',    label: 'Kollektivtrafik',      def: 0, ref: [0, 1200] },
+    { k: 'barnomsorg', label: 'Förskola och fritids', def: 0, ref: [0, 2500], hint: 'Maxtaxa ≈ 1 700 kr/mån för första barnet' },
+    { k: 'forsOvrig',label: 'Övriga försäkringar',  def: 400, ref: [200, 800] },
+    { k: 'abonnemang', label: 'Mobil och streaming', def: 550, ref: [400, 900],
+      hint: 'Bredbandet ligger under driftkostnader — det hör till huset' },
+    { k: 'klader',   label: 'Kläder, skor, hygien', def: 1200, ref: [600, 900], refPer: 'person' },
+    { k: 'fritid',   label: 'Fritid, nöje, restaurang', def: 2500, ref: [1000, 4000] },
+    { k: 'semesterAr', label: 'Semester',           def: 30000, unit: 'kr/år', step: 5000, noSum: true },
+    { k: 'lan',      label: 'Andra lån — CSN, billån', def: 0, ref: [0, 4000] },
+    { k: 'sparande', label: 'Sparande vid sidan av', def: 2000, ref: [1000, 5000], hint: 'Buffert, pension, barnsparande' },
+  ]},
+
+  { id: 'jmf', title: 'Jämför med idag', unit: '', fields: [
+    { k: 'idag', label: 'Vad ni betalar för boendet idag', def: 12000, unit: 'kr/mån', step: 500, noSum: true,
+      hint: 'Hyra eller avgift plus el — allt som försvinner om ni flyttar' },
+  ]},
+];
+
+/* Fälten delas i två världar: hushållet är sig likt oavsett vilket hus ni
+   tittar på, medan pris och drift hör till det enskilda huset. */
+const isHus = (sec, f) => f.hus ?? sec.scope === 'hus';
+const HUSHALL_DEF = { splitMode: 'inkomst', splitEgen: 50 };
+const HUS_DEF = {};
+SPEC.forEach(sec => {
+  sec.fields.forEach(f => (isHus(sec, f) ? HUS_DEF : HUSHALL_DEF)[f.k] = f.def);
+  (sec.checks || []).forEach(c => HUSHALL_DEF[c.k] = c.def);
+});
+const HUS_KEYS = Object.keys(HUS_DEF);
+const nyttHus = (namn, from) => ({ ...HUS_DEF, ...(from || {}), husnamn: namn });
+
+const STORE = 'huskalkylen.v3';
+let state = { hushall: { ...HUSHALL_DEF }, hus: [nyttHus('Hus 1')], aktivt: 0 };
+
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+  if (saved && Array.isArray(saved.hus) && saved.hus.length) {
+    state = {
+      hushall: { ...HUSHALL_DEF, ...saved.hushall },
+      hus: saved.hus.map((h, i) => nyttHus(h.husnamn || `Hus ${i + 1}`, h)),
+      aktivt: Math.min(saved.aktivt | 0, saved.hus.length - 1),
+    };
+  } else {
+    /* Tidigare versioner sparade en enda platt kalkyl. Dela upp den i
+       hushåll + ett hus, och flytta bredbandet ur mobilabonnemanget (v1). */
+    const flat = JSON.parse(localStorage.getItem('huskalkylen.v2')
+                         || localStorage.getItem('huskalkylen.v1') || 'null');
+    if (flat && typeof flat === 'object') {
+      if (!localStorage.getItem('huskalkylen.v2') && typeof flat.abonnemang === 'number') {
+        flat.bredband   = Math.min(HUS_DEF.bredband, flat.abonnemang);
+        flat.abonnemang = Math.max(0, flat.abonnemang - flat.bredband);
+      }
+      const hushall = { ...HUSHALL_DEF }, hus = { ...HUS_DEF };
+      Object.keys(flat).forEach(k => {
+        if (HUS_KEYS.includes(k)) hus[k] = flat[k];
+        else if (k in HUSHALL_DEF) hushall[k] = flat[k];
+      });
+      state = { hushall, hus: [{ ...hus, husnamn: 'Hus 1' }], aktivt: 0 };
+    }
+  }
+} catch (e) { /* corrupt or unavailable storage — defaults stand */ }
+
+/* ── Dela via länk ────────────────────────────────────────────────
+   Allt ligger i adressen, inget skickas till någon server. Bara de fält
+   som skiljer sig från standardvärdena tas med, annars blir länken lång. */
+
+const diff = (obj, def) => {
+  const out = {};
+  Object.keys(def).forEach(k => { if (obj[k] !== def[k]) out[k] = obj[k]; });
+  return out;
+};
+
+function encode(payload) {
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decode(str) {
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
+}
+
+const helaKalkylen = () => ({
+  v: 3,
+  h: diff(state.hushall, HUSHALL_DEF),
+  u: state.hus.map(h => diff(h, HUS_DEF)),
+  a: state.aktivt,
+});
+const baraHuset = i => ({ v: 3, u: [diff(husAt(i), HUS_DEF)] });
+
+const lank = payload =>
+  location.origin + location.pathname + location.search + '#d=' + encode(payload);
+
+function fromPayload(p) {
+  const hus = (p.u || []).map((h, i) => nyttHus(h.husnamn || `Hus ${i + 1}`, h));
+  return {
+    hushall: { ...HUSHALL_DEF, ...(p.h || {}) },
+    hus: hus.length ? hus : [nyttHus('Hus 1')],
+    aktivt: Math.min(p.a | 0, Math.max(0, hus.length - 1)),
+  };
+}
+
+/* fromLink betyder: visa det delade, men rör inte det som redan är sparat. */
+let fromLink = false, delatHus = '', sparaSenare = false;
+function laddaLank() {
+  const h = location.hash.replace(/^#/, '');
+  if (!h.startsWith('d=')) return false;
+  try {
+    const p = decode(h.slice(2));
+    if (!p || !Array.isArray(p.u) || !p.u.length) return false;
+    if (p.h) {
+      state = fromPayload(p);
+      fromLink = true;
+    } else {
+      /* Bara ett hus: lägg till det i kalkylen som redan finns. */
+      let sist;
+      p.u.forEach(x => state.hus.push(sist = nyttHus(x.husnamn || 'Delat hus', x)));
+      state.aktivt = state.hus.length - 1;
+      delatHus = sist.husnamn;
+      sparaSenare = true;
+    }
+    return true;
+  } catch (e) { /* trasig länk — visa den vanliga kalkylen */ }
+  return false;
+}
+laddaLank();
+
+/* Den platta vyn som all räkning arbetar mot: hushållet plus valt hus. */
+const husAt = i => state.hus[Math.min(i ?? state.aktivt, state.hus.length - 1)];
+const S = i => ({ ...state.hushall, ...husAt(i) });
+const val = (sec, f) => (isHus(sec, f) ? husAt() : state.hushall)[f.k];
+const set = (k, v) => { (HUS_KEYS.includes(k) ? husAt() : state.hushall)[k] = v; };
+
+/* ══════════════════════════ Beräkning ══════════════════════════ */
+
+/* Barnbidrag inkl. flerbarnstillägg, kr/mån */
+function barnbidrag(n) {
+  if (n <= 0) return 0;
+  const tillagg = [0, 0, 150, 730, 1740, 2990, 4240, 5490, 6740];
+  return n * 1250 + (tillagg[Math.min(n, 8)] || 0);
+}
+
+function calc(s, rantaOverride) {
+  const ranta = rantaOverride ?? s.ranta;
+
+  const bidrag  = barnbidrag(s.barn);
+  const inkomst = s.lon1 + s.lon2 + bidrag + s.ovrigt;
+
+  const kontantinsats = s.pris * (s.kontantPct / 100);
+  const lan           = Math.max(0, s.pris - kontantinsats);
+  const belaningsgrad = s.pris > 0 ? lan / s.pris : 0;
+
+  /* Amorteringskrav: 2 %/år över 70 % belåning, 1 %/år 50–70 %,
+     plus 1 %/år om skulden överstiger 4,5 × bruttoårsinkomst. */
+  let amortPct = belaningsgrad > 0.70 ? 2 : belaningsgrad > 0.50 ? 1 : 0;
+  const skuldkvot = s.bruttoAr > 0 ? lan / s.bruttoAr : 0;
+  const skarptSlår = s.skarpt && skuldkvot > 4.5;
+  if (skarptSlår) amortPct += 1;
+  const amortering = lan * (amortPct / 100) / 12;
+
+  /* Ränta och ränteavdrag: 30 % upp till 100 000 kr/år, 21 % däröver. */
+  const rantaAr    = lan * (ranta / 100);
+  const avdragAr   = Math.min(rantaAr, 100000) * 0.30 + Math.max(0, rantaAr - 100000) * 0.21;
+  const rantaBrutto = rantaAr / 12;
+  const avdrag      = avdragAr / 12;
+  const rantaNetto  = rantaBrutto - avdrag;
+
+  const underhall = s.pris * (s.underhallPct / 100) / 12;
+  const favgift   = s.favgiftAr / 12;
+  const slam      = s.slamAr / 12;
+  const tomtratt  = s.tomtrattAr / 12;
+
+  const driftPoster = [
+    ['Ränta efter avdrag',      rantaNetto],
+    ['Amortering',              amortering],
+    ['El',                      s.el],
+    ['Uppvärmning',             s.varme],
+    ['Vatten och avlopp',       s.vatten],
+    ['Sophämtning',             s.sopor],
+    ['Villaförsäkring',         s.forsakring],
+    ['Sotning',                 s.sotning],
+    ['Samfällighet',            s.samfall],
+    ['Bredband',                s.bredband],
+    ['Hemlarm',                 s.larm],
+    ['Serviceavtal',            s.service],
+    ['Snöröjning och trädgård', s.snorojning],
+    ['Slamtömning',             slam],
+    ['Tomträttsavgäld',         tomtratt],
+    ['Fastighetsavgift',        favgift],
+    ['Underhåll',               underhall],
+  ];
+  const drift = s.el + s.varme + s.vatten + s.sopor + s.forsakring + s.sotning
+              + s.samfall + s.bredband + s.larm + s.service + s.snorojning
+              + slam + tomtratt + favgift + underhall;
+
+  const levnadPoster = [
+    ['Mat och hushåll',        s.mat],
+    ['Bil',                    s.bil],
+    ['Kollektivtrafik',        s.resor],
+    ['Förskola och fritids',   s.barnomsorg],
+    ['Övriga försäkringar',    s.forsOvrig],
+    ['Mobil och bredband',     s.abonnemang],
+    ['Kläder och hygien',      s.klader],
+    ['Fritid och nöje',        s.fritid],
+    ['Semester',               s.semesterAr / 12],
+    ['Andra lån',              s.lan],
+    ['Sparande',               s.sparande],
+  ];
+  const levnad = levnadPoster.reduce((a, [, v]) => a + v, 0);
+
+  const boendekostnad = drift + rantaNetto;             // vad boendet faktiskt kostar
+  const boendeutgift  = boendekostnad + amortering;      // vad som lämnar kontot
+  const kvar          = inkomst - boendeutgift - levnad;
+  const boendekvot    = inkomst > 0 ? boendeutgift / inkomst : 0;
+
+  /* Kontantbehov vid tillträde */
+  const lagfart     = s.pris * 0.015 + 825;
+  const nyaPantbrev = Math.max(0, lan - s.pantbrev);
+  const pantbrevKost = nyaPantbrev > 0 ? nyaPantbrev * 0.02 + 375 : 0;
+  const kapitalbehov = kontantinsats + lagfart + pantbrevKost + s.besiktning + s.flytt + s.inflytt;
+
+  return {
+    inkomst, bidrag, lan, kontantinsats, belaningsgrad, amortPct, amortering, skuldkvot, skarptSlår,
+    rantaBrutto, avdrag, rantaNetto, drift, underhall, favgift,
+    boendekostnad, boendeutgift, levnad, kvar, boendekvot,
+    lagfart, pantbrevKost, nyaPantbrev, kapitalbehov,
+    slam, tomtratt, driftPoster, levnadPoster,
+  };
+}
+
+/* Delar upp de gemensamma utgifterna mellan de två personerna.
+   Barnbidrag och övriga inkomster tillhör hushållet och dras av först,
+   så att summan av personernas överskott alltid blir hushållets överskott. */
+function delning(s, r) {
+  const gemensamInkomst = r.bidrag + s.ovrigt;
+  const attDela  = r.boendeutgift + r.levnad - gemensamInkomst;
+  const lonSum   = s.lon1 + s.lon2;
+
+  let a1;
+  if (s.splitMode === 'lika')      a1 = 0.5;
+  else if (s.splitMode === 'egen') a1 = s.splitEgen / 100;
+  else                             a1 = lonSum > 0 ? s.lon1 / lonSum : 0.5;
+
+  return [
+    { namn: (s.namn1 || '').trim() || 'Person 1', lon: s.lon1, andel: attDela * a1 },
+    { namn: (s.namn2 || '').trim() || 'Person 2', lon: s.lon2, andel: attDela * (1 - a1) },
+  ].map(p => ({ ...p, kvar: p.lon - p.andel, pct: p.lon > 0 ? p.andel / p.lon : 1 }));
+}
+
+/* ══════════════════════════ Ledger-UI ══════════════════════════ */
+
+function esc(v) {
+  return String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function fieldRow(f, sec) {
+  const unit = f.unit || 'kr/mån';
+  const hintParts = [];
+
+  if (f.text) {
+    return `
+      <div class="row">
+        <div><label class="row-label" for="f-${f.k}">${f.label}</label>
+        ${f.hint ? `<span class="row-hint">${f.hint}</span>` : ''}</div>
+        <div class="field">
+          <input type="text" id="f-${f.k}" data-k="${f.k}" maxlength="24"
+                 value="${esc(val(sec, f))}" autocomplete="off">
+        </div>
+      </div>`;
+  }
+  if (f.ref) {
+    const per = f.refPer ? ` / ${f.refPer}` : '';
+    hintParts.push(
+      `≈ <button type="button" data-fill="${f.k}" data-val="${Math.round((f.ref[0] + f.ref[1]) / 2)}">` +
+      `${fmt(f.ref[0])}–${fmt(f.ref[1])} kr${per}</button>`
+    );
+  }
+  if (f.hint) hintParts.push(f.hint);
+
+  return `
+    <div class="row">
+      <div>
+        <label class="row-label" for="f-${f.k}">${f.label}</label>
+        ${hintParts.length ? `<span class="row-hint">${hintParts.join(' · ')}</span>` : ''}
+      </div>
+      <div class="field">
+        <input type="number" id="f-${f.k}" data-k="${f.k}"
+               step="${f.step ?? 50}" min="0" ${f.max ? `max="${f.max}"` : ''}
+               value="${val(sec, f)}" inputmode="decimal">
+        <span class="unit">${unit}</span>
+      </div>
+    </div>`;
+}
+
+function buildLedger() {
+  document.getElementById('ledger').innerHTML = SPEC.map((s, i) => `
+    <details class="card sect" id="sect-${s.id}" ${i < 2 ? 'open' : ''}>
+      <summary>
+        <span class="sect-caret">▶</span>
+        <span class="sect-title">${s.title}</span>
+        <span class="sect-sum num" id="sum-${s.id}"></span>
+      </summary>
+      <div class="sect-body">
+        ${s.fields.map(f => fieldRow(f, s)).join('')}
+        ${(s.checks || []).map(c => `
+          <label class="check">
+            <input type="checkbox" data-k="${c.k}" ${state.hushall[c.k] ? 'checked' : ''}>
+            <span>${c.label}</span>
+          </label>`).join('')}
+        ${s.note ? `<p class="note">${s.note}</p>` : ''}
+        <div id="extra-${s.id}"></div>
+      </div>
+    </details>`).join('');
+
+  document.getElementById('ledger').addEventListener('input', e => {
+    const k = e.target.dataset.k;
+    if (!k) return;
+    touch();
+    set(k, e.target.type === 'checkbox' ? e.target.checked
+          : e.target.type === 'text'     ? e.target.value
+          : (parseFloat(e.target.value) || 0));
+    save(); render();
+  });
+
+  document.getElementById('ledger').addEventListener('click', e => {
+    const btn = e.target.closest('[data-fill]');
+    if (!btn) return;
+    const k = btn.dataset.fill;
+    touch();
+    set(k, Number(btn.dataset.val));
+    document.getElementById('f-' + k).value = Number(btn.dataset.val);
+    save(); render();
+  });
+}
+
+function save() {
+  if (fromLink) return;   /* delad kalkyl skriver inte över den egna */
+  try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* private mode */ }
+}
+
+/* Första ändringen i en delad kalkyl gör den till din. */
+function touch() { if (fromLink) { fromLink = false; rensaHash(); } }
+
+function rensaHash() {
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+
+function renderBanner() {
+  const el = document.getElementById('banner');
+  if (fromLink) {
+    el.hidden = false;
+    el.innerHTML = `<span><strong>Öppnad från en delad länk.</strong>
+      Din egen kalkyl ligger kvar orörd — den ersätts först när du ändrar något här.</span>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="b-keep">Behåll den här</button>
+      <button class="btn" type="button" id="b-mine">Öppna min egen</button>`;
+  } else if (delatHus) {
+    el.hidden = false;
+    el.innerHTML = `<span><strong>${esc(delatHus)}</strong> lades till i din kalkyl från en delad länk.</span>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="b-ok">Tack</button>`;
+  } else {
+    el.hidden = true;
+    el.innerHTML = '';
+  }
+}
+
+/* ══════════════════════════ Diagram ══════════════════════════ */
+
+const SERIES = [
+  { key: 'boende', label: 'Boende',           css: '--s1' },
+  { key: 'levnad', label: 'Levnad',           css: '--s2' },
+  { key: 'kvar',   label: 'Kvar',             css: '--s3' },
+];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function drawSplit(r) {
+  const svg = document.getElementById('chart-split');
+  const W = svg.clientWidth || 360, H = 40, GAP = 2, R = 4;
+  const parts = [
+    { ...SERIES[0], v: r.boendeutgift },
+    { ...SERIES[1], v: r.levnad },
+    { ...SERIES[2], v: Math.max(0, r.kvar) },
+  ];
+  const total = Math.max(1, parts.reduce((a, p) => a + p.v, 0) + Math.max(0, -r.kvar));
+  const surface = cssv('--surface');
+
+  let x = 0, out = '';
+  parts.forEach((p, i) => {
+    const w = Math.max(0, (p.v / total) * W - (i < parts.length - 1 ? GAP : 0));
+    if (w > 0.5) {
+      out += `<rect x="${x}" y="0" width="${w}" height="${H}" rx="${Math.min(R, w / 2)}" fill="${cssv(p.css)}"></rect>`;
+      const label = Math.round((p.v / total) * 100) + ' %';
+      if (w > 44) out += `<text x="${x + w / 2}" y="${H / 2 + 4}" text-anchor="middle" font-size="11.5" font-weight="600" fill="${surface}">${label}</text>`;
+    }
+    x += w + GAP;
+  });
+
+  /* Underskott: en fjärde, tydligt märkt stapel bortom inkomsten */
+  if (r.kvar < 0) {
+    const w = Math.max(2, (-r.kvar / total) * W);
+    out += `<rect x="${Math.max(0, W - w)}" y="0" width="${w}" height="${H}" rx="4" fill="${cssv('--critical')}"></rect>`;
+  }
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  svg.innerHTML = `<title>Fördelning av nettoinkomsten</title>${out}`;
+
+  document.getElementById('split-legend').innerHTML = parts.map(p => `
+    <span class="legend-item"><span class="swatch" style="background:${cssv(p.css)}"></span>
+    ${p.label} <span class="num">${fmt(p.v)} kr</span></span>`).join('')
+    + (r.kvar < 0
+      ? `<span class="legend-item"><span class="swatch" style="background:${cssv('--critical')}"></span>
+         Underskott <span class="num">${fmt(-r.kvar)} kr</span></span>` : '');
+
+  document.getElementById('tbl-split').innerHTML = table(
+    ['Post', 'Kr/mån', 'Andel'],
+    parts.map(p => [p.label, fmt(p.v), Math.round(p.v / total * 100) + ' %'])
+      .concat(r.kvar < 0 ? [['Underskott', '−' + fmt(-r.kvar), '']] : [])
+      .concat([['Nettoinkomst', fmt(r.inkomst), '100 %']])
+  );
+}
+
+function drawTop(r) {
+  const svg = document.getElementById('chart-top');
+  const rows = [...r.driftPoster, ...r.levnadPoster]
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  const W = svg.clientWidth || 360;
+  const LW = Math.min(140, Math.max(96, W * 0.38));  // etikettkolumn
+  const VW = 62;                                      // värdekolumn
+  const BW = Math.max(20, W - LW - VW);
+  const RH = 21, H = rows.length * RH + 4;
+  const max = Math.max(1, ...rows.map(([, v]) => v));
+  const hue = cssv('--seq'), ink = cssv('--ink'), ink2 = cssv('--ink-2');
+
+  /* Etiketten får aldrig växa in i stapeln — kapa och lägg hela namnet i tooltipen. */
+  const maxChars = Math.floor((LW - 8) / 6.2);
+  const clip = n => n.length > maxChars ? n.slice(0, maxChars - 1).trimEnd() + '…' : n;
+
+  const bars = rows.map(([name, v], i) => {
+    const y = i * RH + 2, bh = 11;
+    const w = Math.max(1.5, (v / max) * BW);
+    return `<g><title>${name}: ${fmt(v)} kr/mån</title>
+            <text class="lbl" x="0" y="${y + bh}" font-size="11.5" fill="${ink2}">${clip(name)}</text>
+            <rect x="${LW}" y="${y + 2}" width="${w}" height="${bh}" rx="4" fill="${hue}"></rect>
+            <text x="${W}" y="${y + bh}" text-anchor="end" font-size="11.5" fill="${ink}">${fmt(v)}</text></g>`;
+  }).join('');
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  svg.innerHTML = `<title id="top-title">Utgiftsposter per månad, störst först</title>${bars}`;
+
+  document.getElementById('tbl-top').innerHTML = table(
+    ['Post', 'Kr/mån'], rows.map(([n, v]) => [n, fmt(v)])
+  );
+}
+
+function drawRate(r) {
+  const svg = document.getElementById('chart-rate');
+  const W = svg.clientWidth || 360, H = 150;
+  const M = { t: 12, r: 10, b: 26, l: 54 };
+  const pw = W - M.l - M.r, ph = H - M.t - M.b;
+
+  const pts = [];
+  const s = S();
+  for (let p = 1; p <= 8; p += 0.5) pts.push([p, calc(s, p).kvar]);
+
+  const xs = pts.map(d => d[0]), ys = pts.map(d => d[1]);
+  const x0 = 1, x1 = 8;
+  let y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys);
+  if (y1 - y0 < 1000) y1 = y0 + 1000;
+  const pad = (y1 - y0) * 0.12; y0 -= pad; y1 += pad;
+
+  const X = v => M.l + ((v - x0) / (x1 - x0)) * pw;
+  const Y = v => M.t + (1 - (v - y0) / (y1 - y0)) * ph;
+
+  const grid = cssv('--rule'), muted = cssv('--ink-3'), hue = cssv('--seq');
+  let g = '';
+
+  /* vågrätt rutnät + y-ticks */
+  for (let i = 0; i <= 3; i++) {
+    const v = y0 + (y1 - y0) * (i / 3), y = Y(v);
+    g += `<line x1="${M.l}" y1="${y}" x2="${W - M.r}" y2="${y}" stroke="${grid}" stroke-width="1"></line>
+          <text x="${M.l - 8}" y="${y + 4}" text-anchor="end" font-size="10.5" fill="${muted}">${fmt(v / 1000)}k</text>`;
+  }
+  /* nollinje */
+  if (y0 < 0 && y1 > 0) {
+    g += `<line x1="${M.l}" y1="${Y(0)}" x2="${W - M.r}" y2="${Y(0)}" stroke="${cssv('--rule-strong')}" stroke-width="1"></line>`;
+  }
+  /* x-ticks */
+  for (let p = 1; p <= 8; p++) {
+    g += `<text x="${X(p)}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="${muted}">${p}%</text>`;
+  }
+
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join(' ');
+  g += `<path d="${d}" fill="none" stroke="${hue}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>`;
+
+  /* bankens kalkylränta, 7 % */
+  const kalp = calc(s, 7).kvar;
+  g += `<line x1="${X(7)}" y1="${M.t}" x2="${X(7)}" y2="${M.t + ph}" stroke="${cssv('--accent')}" stroke-width="1"></line>
+        <circle cx="${X(7)}" cy="${Y(kalp)}" r="4.5" fill="${cssv('--accent')}" stroke="${cssv('--surface')}" stroke-width="2"></circle>`;
+
+  /* nuvarande ränta, direktmärkt */
+  const now = calc(s).kvar, nx = X(Math.min(8, Math.max(1, s.ranta)));
+  g += `<circle cx="${nx}" cy="${Y(now)}" r="4.5" fill="${hue}" stroke="${cssv('--surface')}" stroke-width="2"></circle>
+        <text x="${Math.min(W - M.r, nx + 9)}" y="${Y(now) - 8}" font-size="11" font-weight="600"
+              fill="${cssv('--ink')}" text-anchor="${nx > W * 0.7 ? 'end' : 'start'}">${fmt(now)} kr</text>`;
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  svg.innerHTML = `<title id="rate-title">Kvar per månad vid räntor mellan 1 och 8 procent</title>${g}`;
+
+  document.getElementById('tbl-rate').innerHTML = table(
+    ['Ränta', 'Ränta/mån netto', 'Kvar/mån'],
+    [1, 2, 3, 4, 5, 6, 7, 8].map(p => {
+      const c = calc(s, p);
+      return [p.toFixed(0) + ' %', fmt(c.rantaNetto), (c.kvar < 0 ? '−' : '') + fmt(Math.abs(c.kvar))];
+    })
+  );
+}
+
+function drawPersons(r) {
+  const ps = delning(S(), r);
+  const scale = Math.max(1, ...ps.map(p => Math.max(p.lon, p.andel)));
+
+  document.getElementById('persons').innerHTML = ps.map(p => {
+    const status = p.kvar < 0 ? 'bad' : p.kvar < p.lon * 0.1 ? 'warn' : 'good';
+    const spentW = Math.min(p.andel, p.lon) / scale * 100;
+    const leftW  = Math.max(0, p.kvar) / scale * 100;
+    const overW  = Math.max(0, -p.kvar) / scale * 100;
+    return `
+      <div class="person">
+        <div class="person-head">
+          <span class="person-name">${esc(p.namn)}</span>
+          <span class="person-kvar is-${status}">${fmtK(p.kvar)}</span>
+        </div>
+        <div class="pbar" role="img" aria-label="${esc(p.namn)} betalar ${fmt(p.andel)} kr av ${fmt(p.lon)} kr">
+          <span class="spent" style="width:${spentW}%"></span>
+          ${leftW > 0 ? `<span class="left" style="width:${leftW}%"></span>` : ''}
+          ${overW > 0 ? `<span class="over" style="width:${overW}%"></span>` : ''}
+        </div>
+        <div class="person-meta">
+          Betalar <span class="num">${fmt(p.andel)} kr</span> av sin lön på
+          <span class="num">${fmt(p.lon)} kr</span> — <span class="num">${Math.round(p.pct * 100)} %</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('tbl-person').innerHTML = table(
+    ['', 'Nettolön', 'Betalar', 'Kvar'],
+    ps.map(p => [p.namn, fmt(p.lon), fmt(p.andel), (p.kvar < 0 ? '−' : '') + fmt(Math.abs(p.kvar))])
+      .concat([['Tillsammans', fmt(ps[0].lon + ps[1].lon), fmt(ps[0].andel + ps[1].andel),
+                (r.kvar < 0 ? '−' : '') + fmt(Math.abs(r.kvar))]])
+  );
+
+  /* Kontrollerna speglar valt läge */
+  document.querySelectorAll('#split-mode button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.mode === state.hushall.splitMode)));
+  const slider = document.getElementById('split-slider');
+  slider.hidden = state.hushall.splitMode !== 'egen';
+  if (!slider.hidden) {
+    document.getElementById('split-range').value = state.hushall.splitEgen;
+    document.getElementById('split-range-label').textContent =
+      `${ps[0].namn} betalar ${state.hushall.splitEgen} %`;
+  }
+}
+
+const husNamn = (h, i) => (h.husnamn || '').trim() || `Hus ${i + 1}`;
+
+function drawHouses(r) {
+  document.getElementById('houses').innerHTML = state.hus.map((h, i) => {
+    const on = i === state.aktivt;
+    const kvar = on ? r.kvar : calc(S(i)).kvar;
+    const namn = esc(husNamn(h, i));
+    return `<span class="house-wrap${on ? ' is-active' : ''}">
+      <button class="house-tab" type="button" role="tab" data-hus="${i}" aria-selected="${on}">
+        <span>${namn}</span><span class="kv">${fmtK(kvar)}</span>
+      </button>
+      ${state.hus.length > 1 ? `<button class="house-drop" type="button"
+        data-drop="${i}" title="Ta bort ${namn}" aria-label="Ta bort ${namn}">×</button>` : ''}
+    </span>`;
+  }).join('') + `<button class="house-add" type="button" id="house-add">+ Lägg till hus</button>`;
+}
+
+function drawCompare() {
+  const box = document.getElementById('compare');
+  box.hidden = state.hus.length < 2;
+  if (box.hidden) return;
+
+  const rows = state.hus.map((h, i) => {
+    const s = S(i), c = calc(s);
+    return { i, namn: husNamn(h, i), pris: s.pris, c, kalp: calc(s, 7).kvar };
+  });
+
+  const svg = document.getElementById('chart-compare');
+  const W = svg.clientWidth || 700;
+  const LW = Math.min(180, Math.max(100, W * 0.22));
+  const VW = 76;
+  const BW = Math.max(30, W - LW - VW);
+  const RH = 26, H = rows.length * RH + 4;
+
+  const vals = rows.map(r => r.c.kvar);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const span = (hi - lo) || 1;
+  const zero = LW + (0 - lo) / span * BW;
+  const best = Math.max(...vals);
+
+  const bars = rows.map((r, i) => {
+    const y = i * RH + 2, bh = 13;
+    const x = LW + (Math.min(0, r.c.kvar) - lo) / span * BW;
+    const w = Math.max(1.5, Math.abs(r.c.kvar) / span * BW);
+    const fill = r.c.kvar < 0 ? cssv('--critical') : cssv('--s3');
+    const mark = r.c.kvar === best && rows.length > 1 ? ' ★' : '';
+    return `<g><title>${esc(r.namn)}: ${fmtK(r.c.kvar)} kvar per månad</title>
+      <text class="lbl" x="0" y="${y + bh}" font-size="12" fill="${cssv('--ink-2')}">${esc(r.namn.slice(0, 20))}${mark}</text>
+      <rect x="${x}" y="${y + 2}" width="${w}" height="${bh}" rx="4" fill="${fill}"></rect>
+      <text x="${W}" y="${y + bh}" text-anchor="end" font-size="12" fill="${cssv('--ink')}">${fmtK(r.c.kvar)}</text></g>`;
+  }).join('');
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  svg.innerHTML = `<title id="cmp-title">Kvar per månad för varje hus</title>
+    <line x1="${zero}" y1="0" x2="${zero}" y2="${H - 4}" stroke="${cssv('--rule-strong')}" stroke-width="1"></line>${bars}`;
+
+  document.getElementById('cmp-table').innerHTML = `
+    <table><thead><tr>
+      <th>Hus</th><th>Pris</th><th>Boende/mån</th><th>Boendekvot</th>
+      <th>Kontant vid tillträde</th><th>Kvar/mån</th><th>Vid 7 %</th>
+    </tr></thead><tbody>${rows.map(r => `
+      <tr class="cmp-row${r.i === state.aktivt ? ' is-active' : ''}" data-hus="${r.i}" tabindex="0">
+        <td>${esc(r.namn)}</td>
+        <td class="n">${fmt(r.pris)}</td>
+        <td class="n">${fmt(r.c.boendeutgift)}</td>
+        <td class="n">${Math.round(r.c.boendekvot * 100)} %</td>
+        <td class="n">${fmt(r.c.kapitalbehov)}</td>
+        <td class="n" style="color:${r.c.kvar < 0 ? 'var(--critical)' : 'var(--good)'}">${fmtK(r.c.kvar)}</td>
+        <td class="n" style="color:${r.kalp < 0 ? 'var(--critical)' : 'var(--ink-2)'}">${fmtK(r.kalp)}</td>
+      </tr>`).join('')}</tbody></table>`;
+}
+
+function table(head, rows) {
+  return `<div class="scrollx"><table><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'n' : ''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+
+/* ══════════════════════════ Render ══════════════════════════ */
+
+function render() {
+  const s = S();
+  const r = calc(s);
+
+  /* Hero */
+  const hero = document.getElementById('hero');
+  hero.textContent = fmtK(r.kvar);
+  const tight = r.inkomst * 0.05;
+  const status = r.kvar < 0 ? 'bad' : r.kvar < tight ? 'warn' : 'good';
+  hero.className = 'hero-fig is-' + status;
+  document.getElementById('hero-cap').textContent =
+    r.kvar < 0 ? 'per månad — utgifterna är större än inkomsterna' : 'per månad, efter boende, levnad och sparande';
+
+  const kalp = calc(s, 7).kvar;
+  const pill = document.getElementById('hero-pill');
+  pill.className = 'pill is-' + (kalp < 0 ? 'bad' : kalp < tight ? 'warn' : 'good');
+  pill.textContent = (kalp < 0 ? '✕' : kalp < tight ? '!' : '✓') +
+    `  Vid 7 % ränta: ${fmtK(kalp)}/mån`;
+
+  /* KPI:er */
+  document.getElementById('kpi-boende').textContent = fmt(r.boendeutgift) + ' kr';
+  document.getElementById('kpi-boende-sub').textContent =
+    `varav ${fmt(r.amortering)} kr amortering`;
+
+  const kvot = Math.round(r.boendekvot * 100);
+  const kvotEl = document.getElementById('kpi-kvot');
+  kvotEl.textContent = kvot + ' %';
+  kvotEl.style.color = kvot > 40 ? 'var(--critical)' : kvot > 30 ? 'var(--warn)' : 'var(--good)';
+  document.getElementById('kpi-kvot-sub').textContent =
+    kvot > 40 ? 'ansträngt — tumregel är under 30 %' : kvot > 30 ? 'över tumregeln 30 %' : 'inom tumregeln 30 %';
+
+  document.getElementById('kpi-kontant').textContent = fmt(r.kapitalbehov) + ' kr';
+
+  const delta = r.boendeutgift - s.idag;
+  const dEl = document.getElementById('kpi-delta');
+  dEl.textContent = (delta >= 0 ? '+' : '−') + fmt(Math.abs(delta)) + ' kr';
+  dEl.style.color = delta > 0 ? 'var(--warn)' : 'var(--good)';
+  document.getElementById('kpi-delta-sub').textContent = delta >= 0 ? 'dyrare per månad' : 'billigare per månad';
+
+  document.getElementById('split-desc').textContent =
+    `${fmt(r.inkomst)} kr in varje månad, varav ${fmt(r.bidrag)} kr barnbidrag.`;
+
+  /* Sektionssummor */
+  document.getElementById('sum-inkomst').textContent = fmt(r.inkomst) + ' kr in';
+  document.getElementById('sum-kop').textContent     = fmt(r.lan) + ' kr lån';
+  document.getElementById('sum-drift').textContent   = fmt(r.drift) + ' kr/mån';
+  document.getElementById('sum-levnad').textContent  = fmt(r.levnad) + ' kr/mån';
+  document.getElementById('sum-jmf').textContent     = (delta >= 0 ? '+' : '−') + fmt(Math.abs(delta)) + ' kr/mån';
+
+  /* Uträkningar som hör hemma i respektive sektion */
+  document.getElementById('extra-kop').innerHTML = `
+    <div class="row"><div class="row-label"><strong>Lånebelopp</strong>
+      <span class="row-hint">Kontantinsats ${fmt(r.kontantinsats)} kr · belåningsgrad ${Math.round(r.belaningsgrad * 100)} % · skuldkvot ${r.skuldkvot.toFixed(1).replace('.', ',')}×</span></div>
+      <div class="row-total">${fmt(r.lan)} kr</div></div>
+    <div class="row"><div class="row-label">Ränta före avdrag
+      <span class="row-hint">Ränteavdrag drar av ${fmt(r.avdrag)} kr/mån (30 % upp till 100 000 kr/år, sedan 21 %)</span></div>
+      <div class="row-total">${fmt(r.rantaBrutto)} kr/mån</div></div>
+    <div class="row"><div class="row-label"><strong>Ränta efter avdrag</strong></div>
+      <div class="row-total">${fmt(r.rantaNetto)} kr/mån</div></div>
+    <div class="row"><div class="row-label">Amortering — ${r.amortPct} %/år
+      <span class="row-hint">${r.amortPct === 0 ? 'Inget krav under 50 % belåningsgrad' :
+        (r.belaningsgrad > 0.7 ? '2 % över 70 % belåningsgrad' : '1 % vid 50–70 % belåningsgrad') +
+        (r.skarptSlår ? ' + 1 % skärpt krav (skuldkvot över 4,5)' : '')}</span></div>
+      <div class="row-total">${fmt(r.amortering)} kr/mån</div></div>
+    <div class="row"><div class="row-label">Lagfart <span class="row-hint">1,5 % stämpelskatt + 825 kr</span></div>
+      <div class="row-total">${fmt(r.lagfart)} kr</div></div>
+    <div class="row"><div class="row-label">Nya pantbrev <span class="row-hint">${r.nyaPantbrev > 0 ? `2 % på ${fmt(r.nyaPantbrev)} kr + 375 kr` : 'Befintliga pantbrev räcker'}</span></div>
+      <div class="row-total">${fmt(r.pantbrevKost)} kr</div></div>
+    <div class="row"><div class="row-label"><strong>Kontant vid tillträde</strong>
+      <span class="row-hint">Kontantinsats, lagfart, pantbrev, besiktning, flytt och inflyttningsbudget</span></div>
+      <div class="row-total"><strong>${fmt(r.kapitalbehov)} kr</strong></div></div>`;
+
+  document.getElementById('extra-drift').innerHTML = `
+    ${r.slam > 0 ? `<div class="row"><div class="row-label">Slamtömning per månad</div>
+      <div class="row-total">${fmt(r.slam)} kr/mån</div></div>` : ''}
+    ${r.tomtratt > 0 ? `<div class="row"><div class="row-label">Tomträttsavgäld per månad</div>
+      <div class="row-total">${fmt(r.tomtratt)} kr/mån</div></div>` : ''}
+    <div class="row"><div class="row-label">Fastighetsavgift per månad</div>
+      <div class="row-total">${fmt(r.favgift)} kr/mån</div></div>
+    <div class="row"><div class="row-label">Underhåll per månad
+      <span class="row-hint">${s.underhallPct} % av ${fmt(s.pris)} kr per år</span></div>
+      <div class="row-total">${fmt(r.underhall)} kr/mån</div></div>
+    <div class="row"><div class="row-label"><strong>Drift totalt</strong>
+      <span class="row-hint">Utan ränta och amortering</span></div>
+      <div class="row-total"><strong>${fmt(r.drift)} kr/mån</strong></div></div>`;
+
+  document.getElementById('extra-inkomst').innerHTML = s.barn > 0 ? `
+    <div class="row"><div class="row-label">Barnbidrag
+      <span class="row-hint">1 250 kr per barn${s.barn > 1 ? ' + flerbarnstillägg' : ''}</span></div>
+      <div class="row-total">${fmt(r.bidrag)} kr/mån</div></div>` : '';
+
+  drawHouses(r); drawCompare(); renderBanner();
+  document.getElementById('act-share-hus').textContent =
+    `Dela ${husNamn(husAt(), state.aktivt)}`;
+  drawPersons(r); drawSplit(r); drawTop(r); drawRate(r);
+}
+
+/* ══════════════════════════ Referens ══════════════════════════ */
+
+const REF = [
+  { h: 'Huset — varje månad', lines: [
+    ['El, villa med värmepump', '1 200–2 500 kr', '15–20 000 kWh/år'],
+    ['El, direktverkande', '2 000–4 000 kr', '20–25 000 kWh/år'],
+    ['Fjärrvärme', '1 200–2 000 kr', ''],
+    ['Vatten och avlopp', '400–800 kr', 'Kommunalt VA'],
+    ['Sophämtning', '200–400 kr', ''],
+    ['Villaförsäkring', '300–700 kr', ''],
+    ['Sotning', '40–100 kr', 'Om ni har eldstad'],
+    ['Samfällighet, väg', '0–500 kr', ''],
+    ['Bredband', '300–700 kr', 'Fiber. I hyresrätt ligger det ofta i avgiften'],
+    ['Hemlarm', '300–500 kr', 'Om ni tecknar larmtjänst'],
+    ['Serviceavtal', '150–300 kr', 'Värmepump, ventilation'],
+    ['Snöröjning, trädgård', '0–600 kr', 'Om ni köper tjänsten'],
+  ]},
+  { h: 'Huset — per år', lines: [
+    ['Fastighetsavgift', 'högst ~9 500 kr', '0,75 % av taxeringsvärdet, takbelopp indexeras'],
+    ['Slamtömning', '1 500–3 000 kr', 'Bara vid enskilt avlopp'],
+    ['Tomträttsavgäld', '0 eller 10 000+ kr', 'Bara på arrenderad tomt, varierar kraftigt'],
+    ['Underhåll', '1 % av husets värde', '40 000 kr/år för ett hus på 4 miljoner'],
+    ['Lagfart', '1,5 % + 825 kr', 'Engångs, vid tillträde'],
+    ['Pantbrev', '2 % + 375 kr', 'Bara på det som saknar pantbrev'],
+    ['Besiktning', '5 000–15 000 kr', 'Engångs, före köpet'],
+  ]},
+  { h: 'Livet — varje månad', lines: [
+    ['Mat, vuxen', '2 800–3 500 kr', 'Allt lagat hemma'],
+    ['Mat, barn', '1 500–2 800 kr', 'Ökar med åldern'],
+    ['Bil, allt inräknat', '3 500–6 000 kr', 'Inkl. värdeminskning'],
+    ['Förskola, fritids', '0–1 700 kr', 'Maxtaxa för första barnet'],
+    ['Kläder och hygien', '600–900 kr', 'Per person'],
+    ['Mobil och streaming', '400–900 kr', 'Bredbandet ligger under huset'],
+    ['Barnbidrag (in)', '1 250 kr per barn', 'Plus flerbarnstillägg'],
+  ]},
+];
+
+document.getElementById('refgrid').innerHTML = REF.map(c => `
+  <div class="ref-col">
+    <h3>${c.h}</h3>
+    ${c.lines.map(([a, b, n]) => `<div class="ref-line"><span>${a}${n ? `<em>${n}</em>` : ''}</span><span>${b}</span></div>`).join('')}
+  </div>`).join('');
+
+/* ══════════════════════════ Kontroller ══════════════════════════ */
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-toggle]');
+  if (!t) return;
+  const el = document.getElementById(t.dataset.toggle);
+  const on = el.classList.toggle('on');
+  t.textContent = on ? 'Dölj tabell' : 'Visa som tabell';
+});
+
+/* ── Dela och exportera ── */
+async function kopiera(url, btn) {
+  const original = btn.dataset.label || btn.textContent;
+  btn.dataset.label = original;
+  try {
+    await navigator.clipboard.writeText(url);
+    btn.textContent = 'Länk kopierad';
+  } catch (e) {
+    /* Utskrift i stället när urklipp inte är tillåtet */
+    prompt('Kopiera länken:', url);
+    btn.textContent = original;
+    return;
+  }
+  setTimeout(() => { btn.textContent = original; }, 2000);
+}
+
+document.getElementById('act-share').addEventListener('click', e => {
+  kopiera(lank(helaKalkylen()), e.currentTarget);
+});
+document.getElementById('act-share-hus').addEventListener('click', e => {
+  kopiera(lank(baraHuset()), e.currentTarget);
+});
+
+document.getElementById('act-save').addEventListener('click', () => {
+  const namn = state.hus.length > 1 ? 'huskalkylen' : husNamn(husAt(), state.aktivt);
+  const blob = new Blob([JSON.stringify(helaKalkylen(), null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = namn.replace(/[^\wåäöÅÄÖ -]/g, '').trim() + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById('act-open').addEventListener('click', () =>
+  document.getElementById('file-in').click());
+
+document.getElementById('file-in').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let p;
+    try { p = JSON.parse(reader.result); } catch (err) { p = null; }
+    if (!p || !Array.isArray(p.u) || !p.u.length) {
+      alert('Filen ser inte ut som en sparad huskalkyl.');
+      return;
+    }
+    if (!confirm('Ersätta kalkylen som ligger här med den i filen?')) return;
+    state = fromPayload(p);
+    fromLink = false; delatHus = ''; rensaHash();
+    save(); buildLedger(); render();
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+/* Byta hus, lägga till och ta bort */
+function valjHus(i) {
+  touch();
+  state.aktivt = Math.max(0, Math.min(i, state.hus.length - 1));
+  save(); buildLedger(); render();
+}
+
+document.getElementById('houses').addEventListener('click', e => {
+  const drop = e.target.closest('[data-drop]');
+  if (drop) {
+    e.stopPropagation();
+    const i = Number(drop.dataset.drop);
+    if (!confirm(`Ta bort ${husNamn(state.hus[i], i)}? Det går inte att ångra.`)) return;
+    state.hus.splice(i, 1);
+    valjHus(state.aktivt > i ? state.aktivt - 1 : state.aktivt);
+    return;
+  }
+  if (e.target.closest('#house-add')) {
+    /* Nytt hus ärver drift och pris från det man tittar på — oftast
+       vill man jämföra två hus som liknar varandra, inte börja om. */
+    state.hus.push(nyttHus(`Hus ${state.hus.length + 1}`, husAt()));
+    valjHus(state.hus.length - 1);
+    return;
+  }
+  const tab = e.target.closest('[data-hus]');
+  if (tab) valjHus(Number(tab.dataset.hus));
+});
+
+document.getElementById('cmp-table').addEventListener('click', e => {
+  const row = e.target.closest('[data-hus]');
+  if (row) valjHus(Number(row.dataset.hus));
+});
+document.getElementById('cmp-table').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const row = e.target.closest('[data-hus]');
+  if (row) { e.preventDefault(); valjHus(Number(row.dataset.hus)); }
+});
+
+document.getElementById('banner').addEventListener('click', e => {
+  if (e.target.id === 'b-keep') { fromLink = false; rensaHash(); save(); renderBanner(); }
+  if (e.target.id === 'b-mine') { rensaHash(); location.reload(); }
+  if (e.target.id === 'b-ok')   { delatHus = ''; renderBanner(); }
+});
+
+document.getElementById('split-mode').addEventListener('click', e => {
+  const b = e.target.closest('[data-mode]');
+  if (!b) return;
+  touch();
+  state.hushall.splitMode = b.dataset.mode;
+  save(); render();
+});
+
+document.getElementById('split-range').addEventListener('input', e => {
+  touch();
+  state.hushall.splitEgen = Number(e.target.value);
+  save(); render();
+});
+
+document.getElementById('btn-theme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme
+    ? root.dataset.theme === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  render();
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!confirm('Börja om från början? Alla hus och siffror nollställs.')) return;
+  state = { hushall: { ...HUSHALL_DEF }, hus: [nyttHus('Hus 1')], aktivt: 0 };
+  fromLink = false; delatHus = ''; rensaHash();
+  save(); buildLedger(); render();
+});
+
+let resizeTimer;
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 120);
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+
+addEventListener('hashchange', () => {
+  if (!laddaLank()) return;
+  buildLedger(); render();
+  if (sparaSenare) { save(); rensaHash(); sparaSenare = false; }
+});
+
+buildLedger();
+render();
+/* Ett hus från en länk är ett tillägg, inte ett övertagande — spara direkt. */
+if (sparaSenare) { save(); rensaHash(); }
+</script>

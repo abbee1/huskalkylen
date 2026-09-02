@@ -48,6 +48,26 @@ open index.html
 - Fördelningen av nettoinkomsten och alla utgiftsposter sorterade efter storlek
 - Räntekänslighet 1–8 % med bankens kalkylränta 7 % utmärkt
 
+## Läsa in en annons
+
+Annonssajter kan inte läsas direkt från sidan: de tillåter inte att en annan
+webbplats hämtar dem (CORS), och en API-nyckel i en öppen sida är en läckt
+nyckel. Därför går det via urklippet i stället.
+
+Öppna huset på Booli, Hemnet eller hos mäklaren, markera hela sidan och
+kopiera. Klistra in i **Läs in från annons**, så plockas pris, boarea,
+driftkostnad, taxeringsvärde och adress ut — i din egen webbläsare, ingenting
+skickas någonstans. Varje träff visas tillsammans med texten den lästes ur,
+så en feltolkning syns innan den används.
+
+Driftkostnaden i en annons är en klumpsumma för el, värme, VA, sophämtning,
+försäkring och sotning. Den ersätter därför de posterna i stället för att
+läggas till dem — annars räknas de två gånger. Bocka ur rutan för att gå
+tillbaka till egna siffror.
+
+Taxeringsvärdet sätter fastighetsavgiften till 0,75 % per år, dock högst
+takbeloppet.
+
 ## Kvar till var och en
 
 Delar de gemensamma utgifterna mellan två personer på tre sätt: lika, efter

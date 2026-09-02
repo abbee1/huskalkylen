@@ -200,6 +200,31 @@ button { font: inherit; color: inherit; }
 .banner strong { color: var(--ink); font-weight: 620; }
 .banner .spacer { flex: 1; }
 
+/* inläsning från annons */
+.imp { padding: 16px 18px; margin-bottom: 16px; }
+.imp[hidden] { display: none; }
+.imp h3 { font-size: 15px; }
+.imp-desc { font-size: 12.5px; color: var(--ink-2); margin: 6px 0 12px; max-width: 62ch; }
+.imp kbd {
+  font-family: var(--mono); font-size: 11px; padding: 1px 4px;
+  border: 1px solid var(--rule-strong); border-radius: 4px; background: var(--surface-2);
+}
+.imp textarea {
+  width: 100%; font-family: var(--mono); font-size: 12.5px; line-height: 1.5;
+  padding: 9px 11px; color: var(--ink); background: var(--surface-2);
+  border: 1px solid var(--rule-strong); border-radius: 6px; resize: vertical;
+}
+.imp textarea:focus { outline: 2px solid var(--focus); outline-offset: -1px; border-color: transparent; }
+.imp-row { display: flex; gap: 8px; margin-top: 10px; }
+.imp-found { margin-top: 14px; border-top: 1px solid var(--rule); }
+.imp-hit {
+  display: grid; grid-template-columns: 1fr auto; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 13px; align-items: baseline;
+}
+.imp-hit span:last-child { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.imp-hit em { display: block; font-style: normal; font-size: 11.5px; color: var(--ink-3); }
+.imp-miss { font-size: 12.5px; color: var(--ink-3); padding: 9px 0 0; }
+
 /* jämförelse */
 .cmp-row { cursor: pointer; }
 .cmp-row:hover td { background: var(--surface-2); }
@@ -401,11 +426,24 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; }
     <div>
       <div class="houses" id="houses" role="tablist" aria-label="Hus att jämföra"></div>
       <div class="acts">
+        <button class="linkbtn" type="button" id="act-import">Läs in från annons</button>
         <button class="linkbtn" type="button" id="act-share">Dela kalkylen som länk</button>
         <button class="linkbtn" type="button" id="act-share-hus">Dela huset</button>
         <button class="linkbtn" type="button" id="act-save">Spara som fil</button>
         <button class="linkbtn" type="button" id="act-open">Öppna fil</button>
         <input type="file" id="file-in" accept="application/json,.json" hidden>
+      </div>
+      <div class="card imp" id="import" hidden>
+        <h3>Läs in från en annons</h3>
+        <p class="imp-desc">Öppna huset på Booli, Hemnet eller hos mäklaren, markera hela sidan
+          (<kbd>Ctrl</kbd>+<kbd>A</kbd>) och kopiera (<kbd>Ctrl</kbd>+<kbd>C</kbd>). Klistra in här.
+          Inget hämtas från nätet — texten läses i din egen webbläsare.</p>
+        <textarea id="imp-text" rows="5" placeholder="Klistra in annonstexten här…"></textarea>
+        <div class="imp-row">
+          <button class="btn" type="button" id="imp-read">Läs texten</button>
+          <button class="btn" type="button" id="imp-close">Stäng</button>
+        </div>
+        <div id="imp-result"></div>
       </div>
       <div class="ledger" id="ledger"></div>
     </div>
@@ -550,6 +588,8 @@ const SPEC = [
   { id: 'kop', title: 'Köpet och lånet', unit: '', fields: [
     { k: 'husnamn', hus: true, label: 'Vilket hus är det här?', def: 'Hus 1', text: true,
       hint: 'Adress eller smeknamn — används när husen jämförs' },
+    { k: 'boarea', hus: true,     label: 'Boarea', def: 0, unit: 'm²', step: 5, noSum: true,
+      hint: 'Används för att jämföra pris per kvadratmeter' },
     { k: 'pris', hus: true,       label: 'Pris på huset',        def: 4000000, unit: 'kr', step: 50000, noSum: true },
     { k: 'kontantPct', hus: true, label: 'Kontantinsats',        def: 15, unit: '%', step: 1, max: 100, noSum: true,
       hint: 'Minst 15 % krävs normalt (bolånetaket)' },
@@ -584,10 +624,16 @@ const SPEC = [
       hint: 'Bara vid enskilt avlopp — ≈ 1 500–3 000 kr/år' },
     { k: 'tomtrattAr', label: 'Tomträttsavgäld',  def: 0, unit: 'kr/år', step: 1000, noSum: true,
       hint: 'Bara om tomten är arrenderad. Kan vara stort — fråga mäklaren' },
+    { k: 'annonsDriftAr', label: 'Driftkostnad enligt annonsen', def: 0, unit: 'kr/år', step: 1000, noSum: true,
+      hint: 'Mäklarens klumpsumma. Täcker normalt el, värme, VA, sophämtning, försäkring och sotning' },
+    { k: 'taxvarde',  label: 'Taxeringsvärde',    def: 0, unit: 'kr', step: 50000, noSum: true,
+      hint: 'Styr fastighetsavgiften: 0,75 % per år upp till takbeloppet' },
     { k: 'favgiftAr', label: 'Fastighetsavgift',  def: 9500, unit: 'kr/år', step: 500, noSum: true,
       hint: '0,75 % av taxeringsvärdet, men högst takbeloppet (~9 500 kr/år, indexeras)' },
     { k: 'underhallPct', label: 'Underhåll och reparationer', def: 1.0, unit: '%', step: 0.1, max: 5, noSum: true,
       hint: 'Tumregel: 1 % av husets värde per år, avsatt varje månad' },
+  ], checks: [
+    { k: 'useAnnons', label: 'Använd annonsens driftkostnad i stället för el, värme, VA, sophämtning, försäkring och sotning ovan', def: false },
   ]},
 
   { id: 'levnad', title: 'Levnadskostnader', unit: 'kr/mån', fields: [
@@ -618,7 +664,7 @@ const HUSHALL_DEF = { splitMode: 'inkomst', splitEgen: 50 };
 const HUS_DEF = {};
 SPEC.forEach(sec => {
   sec.fields.forEach(f => (isHus(sec, f) ? HUS_DEF : HUSHALL_DEF)[f.k] = f.def);
-  (sec.checks || []).forEach(c => HUSHALL_DEF[c.k] = c.def);
+  (sec.checks || []).forEach(c => (isHus(sec, c) ? HUS_DEF : HUSHALL_DEF)[c.k] = c.def);
 });
 const HUS_KEYS = Object.keys(HUS_DEF);
 const nyttHus = (namn, from) => ({ ...HUS_DEF, ...(from || {}), husnamn: namn });
@@ -766,15 +812,25 @@ function calc(s, rantaOverride) {
   const slam      = s.slamAr / 12;
   const tomtratt  = s.tomtrattAr / 12;
 
+  /* Annonsens driftkostnad är en klumpsumma för samma poster som de sex
+     första raderna. Antingen den eller de egna siffrorna — aldrig båda. */
+  const annonsDrift = (s.useAnnons && s.annonsDriftAr > 0) ? s.annonsDriftAr / 12 : 0;
+  const grundPoster = annonsDrift > 0
+    ? [['Drift enligt annonsen', annonsDrift]]
+    : [['El',                 s.el],
+       ['Uppvärmning',        s.varme],
+       ['Vatten och avlopp',  s.vatten],
+       ['Sophämtning',        s.sopor],
+       ['Villaförsäkring',    s.forsakring],
+       ['Sotning',            s.sotning]];
+  const grund = annonsDrift > 0
+    ? annonsDrift
+    : s.el + s.varme + s.vatten + s.sopor + s.forsakring + s.sotning;
+
   const driftPoster = [
     ['Ränta efter avdrag',      rantaNetto],
     ['Amortering',              amortering],
-    ['El',                      s.el],
-    ['Uppvärmning',             s.varme],
-    ['Vatten och avlopp',       s.vatten],
-    ['Sophämtning',             s.sopor],
-    ['Villaförsäkring',         s.forsakring],
-    ['Sotning',                 s.sotning],
+    ...grundPoster,
     ['Samfällighet',            s.samfall],
     ['Bredband',                s.bredband],
     ['Hemlarm',                 s.larm],
@@ -785,8 +841,7 @@ function calc(s, rantaOverride) {
     ['Fastighetsavgift',        favgift],
     ['Underhåll',               underhall],
   ];
-  const drift = s.el + s.varme + s.vatten + s.sopor + s.forsakring + s.sotning
-              + s.samfall + s.bredband + s.larm + s.service + s.snorojning
+  const drift = grund + s.samfall + s.bredband + s.larm + s.service + s.snorojning
               + slam + tomtratt + favgift + underhall;
 
   const levnadPoster = [
@@ -820,7 +875,7 @@ function calc(s, rantaOverride) {
     rantaBrutto, avdrag, rantaNetto, drift, underhall, favgift,
     boendekostnad, boendeutgift, levnad, kvar, boendekvot,
     lagfart, pantbrevKost, nyaPantbrev, kapitalbehov,
-    slam, tomtratt, driftPoster, levnadPoster,
+    slam, tomtratt, annonsDrift, driftPoster, levnadPoster,
   };
 }
 
@@ -900,7 +955,7 @@ function buildLedger() {
         ${s.fields.map(f => fieldRow(f, s)).join('')}
         ${(s.checks || []).map(c => `
           <label class="check">
-            <input type="checkbox" data-k="${c.k}" ${state.hushall[c.k] ? 'checked' : ''}>
+            <input type="checkbox" data-k="${c.k}" ${val(s, c) ? 'checked' : ''}>
             <span>${c.label}</span>
           </label>`).join('')}
         ${s.note ? `<p class="note">${s.note}</p>` : ''}
@@ -1187,7 +1242,7 @@ function drawCompare() {
 
   const rows = state.hus.map((h, i) => {
     const s = S(i), c = calc(s);
-    return { i, namn: husNamn(h, i), pris: s.pris, c, kalp: calc(s, 7).kvar };
+    return { i, namn: husNamn(h, i), pris: s.pris, boarea: s.boarea, c, kalp: calc(s, 7).kvar };
   });
 
   const svg = document.getElementById('chart-compare');
@@ -1220,14 +1275,16 @@ function drawCompare() {
   svg.innerHTML = `<title id="cmp-title">Kvar per månad för varje hus</title>
     <line x1="${zero}" y1="0" x2="${zero}" y2="${H - 4}" stroke="${cssv('--rule-strong')}" stroke-width="1"></line>${bars}`;
 
+  const nagonBoarea = rows.some(r => r.boarea > 0);
   document.getElementById('cmp-table').innerHTML = `
     <table><thead><tr>
-      <th>Hus</th><th>Pris</th><th>Boende/mån</th><th>Boendekvot</th>
+      <th>Hus</th><th>Pris</th>${nagonBoarea ? '<th>Kr/m²</th>' : ''}<th>Boende/mån</th><th>Boendekvot</th>
       <th>Kontant vid tillträde</th><th>Kvar/mån</th><th>Vid 7 %</th>
     </tr></thead><tbody>${rows.map(r => `
       <tr class="cmp-row${r.i === state.aktivt ? ' is-active' : ''}" data-hus="${r.i}" tabindex="0">
         <td>${esc(r.namn)}</td>
         <td class="n">${fmt(r.pris)}</td>
+        ${nagonBoarea ? `<td class="n">${r.boarea > 0 ? fmt(r.pris / r.boarea) : '—'}</td>` : ''}
         <td class="n">${fmt(r.c.boendeutgift)}</td>
         <td class="n">${Math.round(r.c.boendekvot * 100)} %</td>
         <td class="n">${fmt(r.c.kapitalbehov)}</td>
@@ -1391,6 +1448,141 @@ document.addEventListener('click', e => {
   const el = document.getElementById(t.dataset.toggle);
   const on = el.classList.toggle('on');
   t.textContent = on ? 'Dölj tabell' : 'Visa som tabell';
+});
+
+/* ── Läsa in en annons ──────────────────────────────────────────────
+   Ingenting hämtas från nätet: annonssidor tillåter inte att en annan
+   sida läser dem, och en API-nyckel i en öppen sida är en läckt nyckel.
+   Texten kommer från urklippet, och tolkas här i webbläsaren. */
+
+const TAK_FASTIGHETSAVGIFT = 9500;   /* takbelopp, indexeras årligen */
+
+/* Svenska tal: "4 250 000", "4 250 000", "1.850.000", "38,5" */
+function svTal(bit) {
+  const m = String(bit).match(/-?\d[\d\s   .,]*/);
+  if (!m) return null;
+  let t = m[0].replace(/[\s   ]/g, '');
+  if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');   /* 1.850.000 */
+  else if (/\.\d{3}\b/.test(t) && !/,/.test(t)) t = t.replace(/\./g, '');
+  t = t.replace(',', '.');
+  const v = parseFloat(t);
+  return Number.isFinite(v) ? v : null;
+}
+
+/* Hittar "Etikett … 4 250 000 kr" oavsett om värdet står efter kolon,
+   på nästa rad eller i nästa tabellcell. */
+function plocka(text, etiketter) {
+  for (const e of etiketter) {
+    /* Ingen bokstav får stå direkt före etiketten, annars fastnar
+       "Avgift" inuti "Fastighetsavgift" och "Pris" inuti "Utgångspris". */
+    const re = new RegExp('(?<![A-Za-zÅÄÖåäö])' + e.replace(/ /g, '\\s+') +
+                          '\\s*:?\\s*([^\\n\\r]{0,70})', 'i');
+    const m = text.match(re);
+    if (!m) continue;
+    const v = svTal(m[1]);
+    if (v !== null) return { v, raw: m[1].trim(), etikett: e };
+  }
+  return null;
+}
+
+function tolkaAnnons(text) {
+  const t = text.replace(/­/g, '');
+  const ut = {};
+
+  const pris = plocka(t, ['Slutpris', 'Utgångspris', 'Begärt pris', 'Accepterat pris', 'Pris']);
+  if (pris && pris.v >= 100000) ut.pris = { ...pris, till: 'pris', text: 'Pris på huset' };
+
+  const drift = plocka(t, ['Driftskostnad', 'Driftkostnad', 'Drift']);
+  if (drift && drift.v > 0) {
+    /* Annonser anger oftast kr/år, ibland kr/mån */
+    const perManad = /m[åa]n/i.test(drift.raw);
+    const perAr = perManad ? Math.round(drift.v * 12) : drift.v;
+    ut.annonsDriftAr = { ...drift, v: perAr, till: 'annonsDriftAr',
+      text: 'Driftkostnad enligt annonsen' + (perManad ? ' (omräknad från kr/mån)' : '') };
+  }
+
+  const tax = plocka(t, ['Taxeringsvärde', 'Taxeringsvarde']);
+  if (tax && tax.v > 0) ut.taxvarde = { ...tax, till: 'taxvarde', text: 'Taxeringsvärde' };
+
+  const bo = plocka(t, ['Boarea', 'Boyta', 'Bostadsyta']);
+  if (bo && bo.v > 0 && bo.v < 2000) ut.boarea = { ...bo, till: 'boarea', text: 'Boarea' };
+
+  /* Bara en uttalad samfällighets- eller månadsavgift. Ett blankt "Avgift"
+     är för tvetydigt för att fylla i något automatiskt. */
+  const avg = plocka(t, ['Samfällighetsavgift', 'Månadsavgift']);
+  if (avg && avg.v > 0) ut.samfall = { ...avg, till: 'samfall', text: 'Samfällighet eller vägförening' };
+
+  /* Adressen: första raden som ser ut som en gatuadress med nummer */
+  const rad = t.split(/[\n\r]+/).map(r => r.trim()).filter(Boolean)
+    .find(r => r.length < 60 && /^[A-ZÅÄÖ][\wÅÄÖåäö.\- ]{2,40}\s+\d+[A-Za-z]?$/.test(r));
+  if (rad) ut.husnamn = { v: rad, raw: rad, till: 'husnamn', text: 'Adress', str: true };
+
+  return ut;
+}
+
+let impFynd = null;
+
+function visaFynd(fynd) {
+  const box = document.getElementById('imp-result');
+  const rader = Object.values(fynd);
+  if (!rader.length) {
+    box.innerHTML = `<p class="imp-miss">Hittade inga siffror att känna igen i texten.
+      Kontrollera att hela annonssidan kom med — eller skriv in siffrorna för hand nedan.</p>`;
+    return;
+  }
+  const extra = fynd.taxvarde
+    ? `<div class="imp-hit"><span>Fastighetsavgift<em>0,75 % av taxeringsvärdet, högst takbeloppet</em></span>
+       <span>${fmt(Math.min(fynd.taxvarde.v * 0.0075, TAK_FASTIGHETSAVGIFT))} kr/år</span></div>` : '';
+
+  box.innerHTML = `<div class="imp-found">
+      ${rader.map(r => `<div class="imp-hit">
+        <span>${esc(r.text)}<em>läst som "${esc(r.raw)}"</em></span>
+        <span>${r.str ? esc(r.v) : fmt(r.v)}</span></div>`).join('')}
+      ${extra}
+    </div>
+    <div class="imp-row">
+      <button class="btn" type="button" id="imp-apply">Använd på ${esc(husNamn(husAt(), state.aktivt))}</button>
+      <button class="btn" type="button" id="imp-new">Använd på ett nytt hus</button>
+    </div>
+    <p class="imp-miss">Kontrollera siffrorna mot annonsen innan du litar på dem — etiketterna
+      skiljer sig mellan sajter och allt fastnar inte alltid rätt.</p>`;
+}
+
+function anvandFynd(nyttHusOcksa) {
+  if (!impFynd) return;
+  touch();
+  if (nyttHusOcksa) {
+    state.hus.push(nyttHus(impFynd.husnamn ? impFynd.husnamn.v : `Hus ${state.hus.length + 1}`, husAt()));
+    state.aktivt = state.hus.length - 1;
+  }
+  const h = husAt();
+  Object.values(impFynd).forEach(r => { h[r.till] = r.v; });
+  /* Annonsens klumpsumma ersätter de egna posterna, annars dubbelräknas de */
+  if (impFynd.annonsDriftAr) h.useAnnons = true;
+  if (impFynd.taxvarde) h.favgiftAr = Math.round(Math.min(impFynd.taxvarde.v * 0.0075, TAK_FASTIGHETSAVGIFT));
+
+  impFynd = null;
+  document.getElementById('imp-text').value = '';
+  document.getElementById('imp-result').innerHTML = '';
+  document.getElementById('import').hidden = true;
+  save(); buildLedger(); render();
+}
+
+document.getElementById('act-import').addEventListener('click', () => {
+  const box = document.getElementById('import');
+  box.hidden = !box.hidden;
+  if (!box.hidden) document.getElementById('imp-text').focus();
+});
+document.getElementById('imp-close').addEventListener('click', () => {
+  document.getElementById('import').hidden = true;
+});
+document.getElementById('imp-read').addEventListener('click', () => {
+  impFynd = tolkaAnnons(document.getElementById('imp-text').value || '');
+  visaFynd(impFynd);
+});
+document.getElementById('imp-result').addEventListener('click', e => {
+  if (e.target.id === 'imp-apply') anvandFynd(false);
+  if (e.target.id === 'imp-new')   anvandFynd(true);
 });
 
 /* ── Dela och exportera ── */

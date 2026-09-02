@@ -225,6 +225,26 @@ button { font: inherit; color: inherit; }
 .imp-hit em { display: block; font-style: normal; font-size: 11.5px; color: var(--ink-3); }
 .imp-miss { font-size: 12.5px; color: var(--ink-3); padding: 9px 0 0; }
 
+/* bokmärket som hämtar huset direkt från annonssidan */
+.imp-bm {
+  display: inline-block; padding: 8px 14px; cursor: grab;
+  background: var(--accent-soft); border: 1px solid var(--accent);
+  border-radius: 6px; color: var(--ink); font-size: 13px;
+  font-weight: 620; text-decoration: none;
+}
+.imp-bm:active { cursor: grabbing; }
+.imp-bm:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.imp-note { font-size: 12px; color: var(--ink-3); margin: 8px 0 0; max-width: 62ch; }
+.imp-or {
+  display: flex; align-items: center; gap: 10px;
+  margin: 18px 0 14px; font-size: 12px; color: var(--ink-3);
+}
+.imp-or::before, .imp-or::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+.imp-src {
+  font-size: 12px; color: var(--ink-3); margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
 /* jämförelse */
 .cmp-row { cursor: pointer; }
 .cmp-row:hover td { background: var(--surface-2); }
@@ -435,9 +455,22 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; }
       </div>
       <div class="card imp" id="import" hidden>
         <h3>Läs in från en annons</h3>
-        <p class="imp-desc">Öppna huset på Booli, Hemnet eller hos mäklaren, markera hela sidan
-          (<kbd>Ctrl</kbd>+<kbd>A</kbd>) och kopiera (<kbd>Ctrl</kbd>+<kbd>C</kbd>). Klistra in här.
-          Inget hämtas från nätet — texten läses i din egen webbläsare.</p>
+        <p class="imp-desc"><strong>Ett klick från Booli.</strong> Dra knappen nedan till
+          bokmärkesfältet (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> visar det). Öppna sedan
+          huset på Booli och klicka på bokmärket — kalkylen öppnas med pris, boarea, driftkostnad,
+          taxeringsvärde och adress ifyllda, redo att granskas.</p>
+        <p class="imp-row">
+          <a class="imp-bm" id="imp-bm" href="#" draggable="true">Hämta huset till Huskalkylen</a>
+        </p>
+        <p class="imp-note">Bokmärket läser annonssidan du står på, i din egen webbläsare, och
+          skickar ingenting någonstans. Det fungerar även på Hemnet och de flesta mäklarsidor.
+          Att klicka på knappen här gör ingenting — den ska ligga i bokmärkesfältet.</p>
+
+        <div class="imp-or"><span>eller klistra in annonsen</span></div>
+
+        <p class="imp-desc">Markera hela annonssidan (<kbd>Ctrl</kbd>+<kbd>A</kbd>) och kopiera
+          (<kbd>Ctrl</kbd>+<kbd>C</kbd>). Klistra in här. Inget hämtas från nätet — texten läses
+          i din egen webbläsare.</p>
         <textarea id="imp-text" rows="5" placeholder="Klistra in annonstexten här…"></textarea>
         <div class="imp-row">
           <button class="btn" type="button" id="imp-read">Läs texten</button>
@@ -1451,11 +1484,135 @@ document.addEventListener('click', e => {
 });
 
 /* ── Läsa in en annons ──────────────────────────────────────────────
-   Ingenting hämtas från nätet: annonssidor tillåter inte att en annan
-   sida läser dem, och en API-nyckel i en öppen sida är en läckt nyckel.
-   Texten kommer från urklippet, och tolkas här i webbläsaren. */
+   Den här sidan hämtar aldrig något själv: Booli och Hemnet tillåter inte
+   att en annan webbplats läser dem (CORS), och en API-nyckel i en öppen
+   sida är en läckt nyckel.
+
+   Annonsen kommer därför in på två sätt, båda genom din egen webbläsare:
+   klistra in texten här, eller klicka på bokmärket medan du står på
+   annonsen. Bokmärket kör i annonssidans eget fönster och kommer förbi
+   CORS av samma skäl som sidan själv gör det — det är sidan. Det plockar
+   husets egna data där de ligger (JSON-LD och sidans JSON), tar med
+   texten som reserv, och öppnar kalkylen med alltihop i adressen.
+   Ingenting passerar någon server. */
 
 const TAK_FASTIGHETSAVGIFT = 9500;   /* takbelopp, indexeras årligen */
+
+/* Bokmärkets kod. Den körs aldrig här — den serialiseras till en
+   javascript:-adress som användaren lägger i bokmärkesfältet och klickar
+   på när annonsen är uppe. Därför står den fristående: inga hjälpare
+   utifrån, inget som antar hur den här sidan ser ut. */
+function booliPlockare(kalkylUrl) {
+  var falt = {}, noder = 0;
+
+  /* Sidornas JSON blandar 4250000, "4 250 000 kr" och {raw: 4250000}. */
+  function tal(x) {
+    if (x && typeof x === 'object')
+      x = x.raw != null ? x.raw : x.value != null ? x.value : x.amount;
+    if (typeof x === 'number') return isFinite(x) ? x : null;
+    if (typeof x !== 'string') return null;
+    var m = x.replace(/[\s  ]/g, '').match(/-?\d+(?:[.,]\d+)?/);
+    return m ? parseFloat(m[0].replace(',', '.')) : null;
+  }
+
+  /* Först funna värdet vinner, och bara inom rimliga gränser: en nyckel
+     som heter rätt men bär fel sorts tal ska inte slinka igenom. */
+  function satt(k, x, min, max) {
+    var v = tal(x);
+    if (v !== null && v >= min && v <= max && falt[k] == null) falt[k] = v;
+  }
+
+  var NYCKLAR = {
+    pris:     [['listprice', 1e5, 1e9], ['soldprice', 1e5, 1e9], ['askingprice', 1e5, 1e9],
+               ['startingprice', 1e5, 1e9], ['price', 1e5, 1e9]],
+    boarea:   [['livingarea', 5, 2000], ['floorsize', 5, 2000], ['boarea', 5, 2000]],
+    driftAr:  [['operatingcost', 500, 500000], ['runningcost', 500, 500000],
+               ['driftskostnad', 500, 500000]],
+    taxvarde: [['taxvalue', 1e4, 1e9], ['assessedvalue', 1e4, 1e9],
+               ['taxeringsvarde', 1e4, 1e9]],
+  };
+
+  /* Sidans JSON är stor och djup. Gå igenom den med tak på både djup och
+     antal noder, annars fastnar bokmärket på en tung annons. */
+  function ga(v, djup) {
+    if (!v || typeof v !== 'object' || djup > 12 || noder > 40000) return;
+    var i, k;
+    if (Array.isArray(v)) {
+      for (i = 0; i < v.length && i < 500 && noder < 40000; i++) { noder++; ga(v[i], djup + 1); }
+      return;
+    }
+    for (k in v) {
+      if (!Object.prototype.hasOwnProperty.call(v, k)) continue;
+      if (++noder > 40000) return;
+      var lk = k.toLowerCase(), x = v[k];
+      for (var f in NYCKLAR) {
+        var regler = NYCKLAR[f];
+        for (i = 0; i < regler.length; i++)
+          if (lk === regler[i][0]) satt(f, x, regler[i][1], regler[i][2]);
+      }
+      if (lk === 'streetaddress' && typeof x === 'string' && x.trim() && x.length < 80
+          && falt.husnamn == null) falt.husnamn = x.trim();
+      if (x && typeof x === 'object') ga(x, djup + 1);
+    }
+  }
+
+  try {
+    var skript = document.querySelectorAll('script[type="application/ld+json"]');
+    for (var i = 0; i < skript.length; i++) {
+      try { ga(JSON.parse(skript[i].textContent), 0); } catch (e) { /* trasig JSON-LD */ }
+    }
+  } catch (e) { /* ingen JSON-LD */ }
+
+  try {
+    var nd = document.getElementById('__NEXT_DATA__');
+    if (nd) { try { ga(JSON.parse(nd.textContent), 0); } catch (e) {} }
+    ga(window.__NEXT_DATA__, 0);
+    ga(window.__NUXT__, 0);
+    ga(window.__APOLLO_STATE__, 0);
+  } catch (e) { /* ingen sådan sida */ }
+
+  /* Texten går alltid med: den är reserven när sidan inte lägger ut
+     sina data, och den är kvittot som visas bredvid varje siffra. */
+  var text = '';
+  try { text = (document.body.innerText || '').replace(/\n{3,}/g, '\n\n').slice(0, 20000); }
+  catch (e) {}
+
+  if (!text && !Object.keys(falt).length) {
+    alert('Hittade inget att läsa på den här sidan. Markera annonsen och klistra in den i kalkylen i stället.');
+    return;
+  }
+
+  var nyttfall = {
+    v: 1, f: falt, t: text,
+    src: location.hostname.replace(/^www\./, ''),
+    url: location.href.split('#')[0].slice(0, 300),
+  };
+
+  var b = new TextEncoder().encode(JSON.stringify(nyttfall)), bin = '';
+  for (var j = 0; j < b.length; j++) bin += String.fromCharCode(b[j]);
+  var mal = kalkylUrl + '#i=' +
+    btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  if (!window.open(mal, '_blank')) location.href = mal;
+}
+
+/* Adressen till den här kalkylen bakas in, så bokmärket hittar tillbaka
+   hit — även när sidan ligger lokalt eller på någon annans server. */
+function bookmarkletUrl() {
+  const hit = location.origin + location.pathname + location.search;
+  return 'javascript:' + encodeURIComponent(
+    '(' + booliPlockare.toString() + ')(' + JSON.stringify(hit) + ');void 0;');
+}
+
+const bmLank = document.getElementById('imp-bm');
+bmLank.setAttribute('href', bookmarkletUrl());
+/* Klick här skulle köra bokmärket på kalkylen i stället för på annonsen. */
+bmLank.addEventListener('click', e => {
+  e.preventDefault();
+  const not = bmLank.parentElement.nextElementSibling;
+  if (not && not.classList.contains('imp-note'))
+    not.textContent = 'Dra knappen till bokmärkesfältet i stället, och klicka på den när du står på annonsen.';
+});
 
 /* Svenska tal: "4 250 000", "4 250 000", "1.850.000", "38,5" */
 function svTal(bit) {
@@ -1490,7 +1647,9 @@ function tolkaAnnons(text) {
   const ut = {};
 
   const pris = plocka(t, ['Slutpris', 'Utgångspris', 'Begärt pris', 'Accepterat pris', 'Pris']);
-  if (pris && pris.v >= 100000) ut.pris = { ...pris, till: 'pris', text: 'Pris på huset' };
+  /* "Pris/m² 35 417 kr/m²" är inte husets pris. */
+  const perKvm = pris && /(\/|per\s+)\s*(m²|m2|kvm)/i.test(pris.raw);
+  if (pris && !perKvm && pris.v >= 100000) ut.pris = { ...pris, till: 'pris', text: 'Pris på huset' };
 
   const drift = plocka(t, ['Driftskostnad', 'Driftkostnad', 'Drift']);
   if (drift && drift.v > 0) {
@@ -1520,13 +1679,64 @@ function tolkaAnnons(text) {
   return ut;
 }
 
+/* Husets egna data slår texttolkningen: en siffra sidan själv lämnar ut
+   är inte gissad ur en etikett, den är sidans egen. */
+const FALT_TILL = {
+  pris:     { till: 'pris',          text: 'Pris på huset' },
+  boarea:   { till: 'boarea',        text: 'Boarea' },
+  driftAr:  { till: 'annonsDriftAr', text: 'Driftkostnad enligt annonsen' },
+  taxvarde: { till: 'taxvarde',      text: 'Taxeringsvärde' },
+  husnamn:  { till: 'husnamn',       text: 'Adress', str: true },
+};
+
+function slaIhopFalt(fynd, falt, src) {
+  if (!falt || typeof falt !== 'object') return fynd;
+  const kalla = src ? `enligt uppgifter från ${src}` : 'enligt annonsens egna uppgifter';
+  Object.keys(FALT_TILL).forEach(k => {
+    const spec = FALT_TILL[k], v = falt[k];
+    if (v == null) return;
+    if (spec.str) {
+      const t = String(v).trim();
+      if (!t || t.length > 80) return;
+      fynd[spec.till] = { v: t, raw: t, kalla, till: spec.till, text: spec.text, str: true };
+    } else {
+      if (typeof v !== 'number' || !Number.isFinite(v) || v <= 0) return;
+      fynd[spec.till] = { v, raw: String(v), kalla, till: spec.till, text: spec.text };
+    }
+  });
+  return fynd;
+}
+
+/* Bokmärket landar här: allt ligger i adressen, ingenting är ifyllt än.
+   Fynden visas för granskning precis som en inklistrad annons. */
+function laddaImport() {
+  const h = location.hash.replace(/^#/, '');
+  if (!h.startsWith('i=')) return false;
+  let p;
+  try { p = decode(h.slice(2)); } catch (e) { return false; }
+  if (!p || typeof p !== 'object') return false;
+  rensaHash();
+
+  const box = document.getElementById('import');
+  box.hidden = false;
+  const ta = document.getElementById('imp-text');
+  ta.value = typeof p.t === 'string' ? p.t : '';
+  impFynd = slaIhopFalt(tolkaAnnons(ta.value), p.f, p.src);
+  visaFynd(impFynd, p);
+  box.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  return true;
+}
+
 let impFynd = null;
 
-function visaFynd(fynd) {
+function visaFynd(fynd, kalla) {
   const box = document.getElementById('imp-result');
   const rader = Object.values(fynd);
+  const varifran = kalla && kalla.src
+    ? `<p class="imp-src">Hämtat från ${esc(kalla.src)}${kalla.url ? ` — ${esc(kalla.url)}` : ''}</p>`
+    : '';
   if (!rader.length) {
-    box.innerHTML = `<p class="imp-miss">Hittade inga siffror att känna igen i texten.
+    box.innerHTML = `${varifran}<p class="imp-miss">Hittade inga siffror att känna igen i texten.
       Kontrollera att hela annonssidan kom med — eller skriv in siffrorna för hand nedan.</p>`;
     return;
   }
@@ -1534,9 +1744,9 @@ function visaFynd(fynd) {
     ? `<div class="imp-hit"><span>Fastighetsavgift<em>0,75 % av taxeringsvärdet, högst takbeloppet</em></span>
        <span>${fmt(Math.min(fynd.taxvarde.v * 0.0075, TAK_FASTIGHETSAVGIFT))} kr/år</span></div>` : '';
 
-  box.innerHTML = `<div class="imp-found">
+  box.innerHTML = `${varifran}<div class="imp-found">
       ${rader.map(r => `<div class="imp-hit">
-        <span>${esc(r.text)}<em>läst som "${esc(r.raw)}"</em></span>
+        <span>${esc(r.text)}<em>${r.kalla ? esc(r.kalla) : `läst som "${esc(r.raw)}"`}</em></span>
         <span>${r.str ? esc(r.v) : fmt(r.v)}</span></div>`).join('')}
       ${extra}
     </div>
@@ -1577,7 +1787,19 @@ document.getElementById('imp-close').addEventListener('click', () => {
   document.getElementById('import').hidden = true;
 });
 document.getElementById('imp-read').addEventListener('click', () => {
-  impFynd = tolkaAnnons(document.getElementById('imp-text').value || '');
+  const text = document.getElementById('imp-text').value || '';
+  /* En inklistrad adress är bara en adress: sidan bakom den får den här
+     sidan inte läsa. Säg det, i stället för att hitta noll siffror. */
+  if (/^\s*https?:\/\/\S+\s*$/.test(text)) {
+    document.getElementById('imp-result').innerHTML =
+      `<p class="imp-miss">Det där är en länk till annonsen, inte annonsen.
+       Den här sidan får inte läsa Booli åt dig — men bokmärket ovanför får det.
+       Lägg det i bokmärkesfältet och klicka på det när annonsen är uppe, eller
+       markera annonssidan och klistra in texten här.</p>`;
+    impFynd = null;
+    return;
+  }
+  impFynd = tolkaAnnons(text);
   visaFynd(impFynd);
 });
 document.getElementById('imp-result').addEventListener('click', e => {
@@ -1723,6 +1945,7 @@ addEventListener('resize', () => {
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
 
 addEventListener('hashchange', () => {
+  if (laddaImport()) return;
   if (!laddaLank()) return;
   buildLedger(); render();
   if (sparaSenare) { save(); rensaHash(); sparaSenare = false; }
@@ -1732,4 +1955,6 @@ buildLedger();
 render();
 /* Ett hus från en länk är ett tillägg, inte ett övertagande — spara direkt. */
 if (sparaSenare) { save(); rensaHash(); }
+/* Kommer man hit från bokmärket ligger annonsen i adressen. */
+laddaImport();
 </script>

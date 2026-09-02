@@ -50,15 +50,30 @@ open index.html
 
 ## Läsa in en annons
 
-Annonssajter kan inte läsas direkt från sidan: de tillåter inte att en annan
-webbplats hämtar dem (CORS), och en API-nyckel i en öppen sida är en läckt
-nyckel. Därför går det via urklippet i stället.
+Kalkylen hämtar aldrig en annons själv: Booli och Hemnet tillåter inte att en
+annan webbplats läser dem (CORS), och en API-nyckel i en öppen sida är en läckt
+nyckel. Annonsen kommer in på två sätt i stället, båda genom din egen
+webbläsare. Pris, boarea, driftkostnad, taxeringsvärde och adress plockas ut,
+och varje träff visas tillsammans med det den lästes ur — så en feltolkning
+syns innan den används.
 
-Öppna huset på Booli, Hemnet eller hos mäklaren, markera hela sidan och
-kopiera. Klistra in i **Läs in från annons**, så plockas pris, boarea,
-driftkostnad, taxeringsvärde och adress ut — i din egen webbläsare, ingenting
-skickas någonstans. Varje träff visas tillsammans med texten den lästes ur,
-så en feltolkning syns innan den används.
+**Bokmärket.** Öppna **Läs in från annons** och dra *Hämta huset till
+Huskalkylen* till bokmärkesfältet. Stå sedan på huset — till exempel
+<https://www.booli.se/bostad/2521054> — och klicka på bokmärket. Kalkylen
+öppnas med siffrorna ifyllda, redo att granskas.
+
+Bokmärket kör i annonssidans eget fönster, och kommer förbi CORS av samma skäl
+som sidan själv gör det: det *är* sidan. Det läser husets egna data där de
+ligger — sidans JSON-LD och `__NEXT_DATA__` — och tar med den synliga texten som
+reserv när sidan inte lägger ut något. Allt skickas vidare i adressen till
+kalkylen; ingenting passerar någon server.
+
+Enstaka sajter med hård `Content-Security-Policy` kan hindra bokmärken från att
+köra. Då finns inklistringen kvar.
+
+**Inklistring.** Öppna huset på Booli, Hemnet eller hos mäklaren, markera hela
+sidan och kopiera. Klistra in i **Läs in från annons**. Bara adressen till
+annonsen räcker inte — det är sidan bakom den som ska läsas.
 
 Driftkostnaden i en annons är en klumpsumma för el, värme, VA, sophämtning,
 försäkring och sotning. Den ersätter därför de posterna i stället för att
@@ -111,6 +126,8 @@ tänka, inte ett lånelöfte.
 
 Vanlig HTML, CSS och JavaScript i en fil. Inget ramverk, inga externa
 beroenden, inga nätverksanrop — sidan fungerar offline och i en strikt CSP.
+Bokmärket är samma sak: en `javascript:`-adress som byggs av sidan själv, med
+kalkylens egen adress inbakad, och som bara körs när du klickar på det.
 
 Diagramfärgerna är validerade för färgseendevariation och kontrast mot både
 den ljusa och den mörka bakgrunden, och varje diagram har en tabellvy.

@@ -1,0 +1,40 @@
+name: Publish to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Behörigheterna som deploy-pages kräver
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# En publicering i taget, och avbryt inte en som redan är igång
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # enablement: true slår på Pages första gången, så det inte
+      # behöver klickas fram i inställningarna
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # Sidan är en enda statisk fil — hela repot går upp som det är
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

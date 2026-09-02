@@ -8,6 +8,9 @@ server. Öppna den i en webbläsare, eller lägg upp den var som helst som kan
 servera en statisk fil. Alla siffror sparas i webbläsarens `localStorage` — inget
 skickas någonstans.
 
+Den ligger uppe på **<https://abbee1.github.io/huskalkylen/>**, och fungerar
+lika bra lokalt:
+
 ```
 git clone git@github.com:abbee1/huskalkylen.git
 cd huskalkylen

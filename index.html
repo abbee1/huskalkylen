@@ -1503,7 +1503,7 @@ const TAK_FASTIGHETSAVGIFT = 9500;   /* takbelopp, indexeras årligen */
    på när annonsen är uppe. Därför står den fristående: inga hjälpare
    utifrån, inget som antar hur den här sidan ser ut. */
 function booliPlockare(kalkylUrl) {
-  var falt = {}, noder = 0;
+  var falt = {}, rang = {}, noder = 0;
 
   /* Sidornas JSON blandar 4250000, "4 250 000 kr" och {raw: 4250000}. */
   function tal(x) {
@@ -1515,13 +1515,22 @@ function booliPlockare(kalkylUrl) {
     return m ? parseFloat(m[0].replace(',', '.')) : null;
   }
 
-  /* Först funna värdet vinner, och bara inom rimliga gränser: en nyckel
-     som heter rätt men bär fel sorts tal ska inte slinka igenom. */
-  function satt(k, x, min, max) {
+  /* Ordningen i NYCKLAR avgör, inte den ordning nycklarna råkar ligga i
+     sidans JSON. Annars vinner ett allmänt "price" ur JSON-LD över husets
+     eget listPrice, bara för att JSON-LD läses först.
+
+     Bara rimliga tal släpps in: en nyckel som heter rätt men bär fel sorts
+     tal ska inte slinka igenom. */
+  function satt(k, x, min, max, plats) {
     var v = tal(x);
-    if (v !== null && v >= min && v <= max && falt[k] == null) falt[k] = v;
+    if (v === null || v < min || v > max) return;
+    if (falt[k] != null && rang[k] <= plats) return;
+    falt[k] = v;
+    rang[k] = plats;
   }
 
+  /* Nycklarna står i prioritetsordning: husets egna, uttalade fält först,
+     de allmänna sist. Bäst placerade träffen vinner. */
   var NYCKLAR = {
     pris:     [['listprice', 1e5, 1e9], ['soldprice', 1e5, 1e9], ['askingprice', 1e5, 1e9],
                ['startingprice', 1e5, 1e9], ['price', 1e5, 1e9]],
@@ -1548,7 +1557,7 @@ function booliPlockare(kalkylUrl) {
       for (var f in NYCKLAR) {
         var regler = NYCKLAR[f];
         for (i = 0; i < regler.length; i++)
-          if (lk === regler[i][0]) satt(f, x, regler[i][1], regler[i][2]);
+          if (lk === regler[i][0]) satt(f, x, regler[i][1], regler[i][2], i);
       }
       if (lk === 'streetaddress' && typeof x === 'string' && x.trim() && x.length < 80
           && falt.husnamn == null) falt.husnamn = x.trim();
